@@ -1,0 +1,14 @@
+parameters:
+    level: 10
+
+    paths:
+        - src
+        - tests
+
+    tmpDir: var/phpstan
+
+    treatPhpDocTypesAsCertain: false
+    reportUnmatchedIgnoredErrors: true
+
+includes:
+    - vendor/phpstan/phpstan-strict-rules/rules.neon

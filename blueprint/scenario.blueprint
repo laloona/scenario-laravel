@@ -1,0 +1,18 @@
+<?php declare(strict_types=1);
+
+namespace %nameSpace%;
+
+use Scenario\Core\Attribute\AsScenario;
+use Scenario\Laravel\Scenario;
+
+#[AsScenario(
+    name:'some usefull name should be chosen',
+    description: 'some usefull text should be written hier'
+)]
+final class %className% extends Scenario
+{
+    public function up(): void
+    {
+        // this up() is auto-generated, please modify it
+    }
+}
