@@ -13,6 +13,8 @@ namespace Scenario\Laravel;
 
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
+use Scenario\Core\PHPUnit\Configuration\Configured;
+use Scenario\Core\PHPUnit\Configuration\ConfiguredInterface;
 use Scenario\Laravel\Command\ScenarioApplyCommand;
 use Scenario\Laravel\Command\ScenarioDebugCommand;
 use Scenario\Laravel\Command\ScenarioInstallCommand;
@@ -40,6 +42,7 @@ final class ScenarioLaravelServiceProvider extends ServiceProvider
             'scenario',
         );
 
+        $this->app->singleton(ConfiguredInterface::class, Configured::class);
         $this->app->singleton(Consumer::class, Consumer::class);
         $this->app->singleton(ProcessRunner::class, ProcessRunner::class);
     }
@@ -55,7 +58,7 @@ final class ScenarioLaravelServiceProvider extends ServiceProvider
         }
 
         /** @var array<string>|string $allowedEnvs */
-        $allowedEnvs = Config::get('scenario.allowed_envs', ['local', 'testing']);
+        $allowedEnvs = Config::get('scenario.allowed_envs', ['local', 'develop', 'testing']);
         if ($this->app->environment($allowedEnvs) === false) {
             return;
         }

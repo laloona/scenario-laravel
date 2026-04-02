@@ -12,6 +12,7 @@
 namespace Scenario\Laravel\Command;
 
 use Illuminate\Support\Facades\App;
+use Scenario\Core\Runtime\Application;
 use Scenario\Core\Runtime\Exception\RegistryException;
 use Scenario\Core\Runtime\Metadata\ExecutionType;
 use Scenario\Core\Runtime\ScenarioRegistry;
@@ -37,10 +38,12 @@ final class ScenarioApplyCommand extends ScenarioCommand
         {--audit : Print audit output}
     ';
 
-    protected $description = 'Apply a given scenario, use --up or --down to choose how the scenario should be applied - should only be used for local/testing';
+    protected $description = 'Apply a given scenario, use --up or --down to choose how the scenario should be applied - should only be used for local/develop/testing';
 
     protected function executeCommand(): int
     {
+        (new Application())->prepare();
+
         if ($this->option('up') === true
             && $this->option('down') === true) {
             $this->error('You can just use either up or down scenarios.');
@@ -183,7 +186,7 @@ final class ScenarioApplyCommand extends ScenarioCommand
                 $this->getCliPath(),
                 'apply',
                 $className,
-                $executionType->value,
+                '--' . $executionType->value,
                 ...$parameters,
                 '--force',
                 '--quiet',

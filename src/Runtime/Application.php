@@ -24,7 +24,7 @@ use const DIRECTORY_SEPARATOR;
 
 final class Application
 {
-    public function boostrap(): void
+    public function bootstrap(): void
     {
         if (defined('SCENARIO_CLI_DISABLED') === false) {
             define('SCENARIO_CLI_DISABLED', true);

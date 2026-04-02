@@ -23,7 +23,7 @@ final class ScenarioInstallCommand extends ScenarioCommand
 {
     protected $signature = 'scenario:install {--force}';
 
-    protected $description = 'Install the Scenario Package (dev/test only)';
+    protected $description = 'Install the Scenario Package (local/develop/testing only)';
 
     public function __construct(
         private readonly ConfiguredInterface $configured,
@@ -33,9 +33,7 @@ final class ScenarioInstallCommand extends ScenarioCommand
 
     protected function executeCommand(): int
     {
-        (new Application())->prepare();
-
-        if ($this->isInstalled()) {
+        if ($this->isInstalled() === true) {
             $this->error('Scenario is already installed.');
             return self::FAILURE;
         }
@@ -44,6 +42,10 @@ final class ScenarioInstallCommand extends ScenarioCommand
             $this->error('Installation aborted.');
             return self::FAILURE;
         }
+
+        File::ensureDirectoryExists(
+            App::basePath('scenario'),
+        );
 
         $this->copyBlueprint(
             'bootstrap.blueprint',
@@ -102,6 +104,11 @@ final class ScenarioInstallCommand extends ScenarioCommand
             '--force',
             '--quiet',
         ], App::basePath(), null);
+    }
+
+    public function isHidden(): bool
+    {
+        return $this->isInstalled() === true;
     }
 
     private function isInstalled(): bool

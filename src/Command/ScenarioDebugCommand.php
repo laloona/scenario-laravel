@@ -30,7 +30,7 @@ final class ScenarioDebugCommand extends ScenarioCommand
 {
     protected $signature = 'scenario:debug';
 
-    protected $description = 'Debug a given scenario or unit test - should only be used for local/testing';
+    protected $description = 'Debug a given scenario or unit test - should only be used for local/develop/testing';
 
     protected function executeCommand(): int
     {

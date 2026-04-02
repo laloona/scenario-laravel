@@ -14,6 +14,7 @@ namespace Scenario\Laravel\Command;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\File;
 use function is_array;
 use function sprintf;
 use const DIRECTORY_SEPARATOR;
@@ -22,7 +23,7 @@ abstract class ScenarioCommand extends Command
 {
     final public function handle(): int
     {
-        $allowedEnvs = Config::get('scenario.allowed_envs', ['local', 'testing']);
+        $allowedEnvs = Config::get('scenario.allowed_envs', ['local', 'develop', 'testing']);
 
         if (is_array($allowedEnvs) === false) {
             $this->error('Configuration key "scenario.allowed_envs" must be an array.');
@@ -58,6 +59,12 @@ abstract class ScenarioCommand extends Command
             'bin' . DIRECTORY_SEPARATOR .
             'scenario',
         );
+    }
+
+    public function isHidden(): bool
+    {
+        return File::exists(App::basePath('scenario.xml')) === true
+            || File::exists(App::basePath('scenario.dist.xml')) === true;
     }
 
     abstract protected function executeCommand(): int;

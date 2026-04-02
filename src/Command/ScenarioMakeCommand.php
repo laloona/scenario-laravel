@@ -29,7 +29,7 @@ final class ScenarioMakeCommand extends ScenarioCommand
 {
     protected $signature = 'scenario:make';
 
-    protected $description = 'Make a scenario - should only be used for local/testing';
+    protected $description = 'Make a scenario - should only be used for local/develop/testing';
 
     protected function executeCommand(): int
     {

@@ -20,7 +20,7 @@ final class ScenarioListCommand extends ScenarioCommand
 {
     protected $signature = 'scenario:list {--suite= : Filters to given suite}';
 
-    protected $description = 'List all available scenarios, use --suite="name of your suite" if you want to see just one suite - should only be used for local/testing';
+    protected $description = 'List all available scenarios, use --suite="name of your suite" if you want to see just one suite - should only be used for local/develop/testing';
 
     protected function executeCommand(): int
     {

@@ -12,6 +12,6 @@ return [
     |
     */
 
-    'allowed_envs' => ['local', 'testing'],
+    'allowed_envs' => ['local', 'develop', 'testing'],
 
 ];
