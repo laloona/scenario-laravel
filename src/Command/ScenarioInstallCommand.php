@@ -14,7 +14,6 @@ namespace Scenario\Laravel\Command;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\File;
 use Scenario\Core\PHPUnit\Configuration\ConfiguredInterface;
-use Scenario\Core\Runtime\Application;
 use Scenario\Laravel\Facades\Shell;
 use const DIRECTORY_SEPARATOR;
 use const PHP_BINARY;
