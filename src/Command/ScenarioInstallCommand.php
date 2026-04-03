@@ -20,6 +20,8 @@ use const PHP_BINARY;
 
 final class ScenarioInstallCommand extends ScenarioCommand
 {
+    protected bool $requiresInstallation = false;
+
     protected $signature = 'scenario:install {--force}';
 
     protected $description = 'Install the Scenario Package (local/develop/testing only)';
@@ -32,13 +34,8 @@ final class ScenarioInstallCommand extends ScenarioCommand
 
     protected function executeCommand(): int
     {
-        if ($this->isInstalled() === true) {
-            $this->error('Scenario is already installed.');
-            return self::FAILURE;
-        }
-
         if ($this->confirm('Do you want to install Scenario?', true) === false) {
-            $this->error('Installation aborted.');
+            $this->error('Scenario installation aborted.');
             return self::FAILURE;
         }
 
@@ -60,59 +57,48 @@ final class ScenarioInstallCommand extends ScenarioCommand
             App::basePath('scenario.dist.xml'),
         );
 
-        if ($this->configured->isConfigured() === false
-            && $this->confirm('Do you want to add configuration to PHPUnit?', true)) {
-
-            $this->configurePHPUnit();
-
-            if ($this->configured->isConfigured() === false) {
-                $this->error('Configuring PHPUnit failed.');
-            }
-        }
-
         if ($this->isInstalled() === true) {
+            if ($this->configured->isConfigured() === false
+                && $this->confirm('Do you want to add configuration to PHPUnit?', true)) {
+
+                $this->configurePHPUnit();
+                if ($this->configured->isConfigured() === false) {
+                    $this->error('Configuring PHPUnit failed.');
+                }
+            }
+
             $this->info('Scenario was successfully installed.');
             return self::SUCCESS;
         }
 
-        $this->error('Installation failed.');
+        $this->error('Scenario installation failed.');
         return self::FAILURE;
     }
 
     private function copyBlueprint(string $source, string $target): void
     {
         $sourcePath = $this->getBlueprint($source);
-
         if (File::exists($sourcePath) === false) {
             return;
         }
 
-        if (File::exists($target)) {
-            File::delete($target);
+        if (File::exists($target) === false) {
+            File::copy($sourcePath, $target);
         }
-
-        File::copy($sourcePath, $target);
     }
 
     private function configurePHPUnit(): void
     {
-        Shell::run([
-            PHP_BINARY,
-            $this->getCliPath(),
-            'install',
-            '--force',
-            '--quiet',
-        ], App::basePath(), null);
-    }
-
-    public function isHidden(): bool
-    {
-        return $this->isInstalled() === true;
-    }
-
-    private function isInstalled(): bool
-    {
-        return File::exists(App::basePath('scenario' . DIRECTORY_SEPARATOR . 'bootstrap.php'))
-            && $this->configured->isConfigured() === true;
+        Shell::run(
+            [
+                PHP_BINARY,
+                $this->getCliPath(),
+                'install',
+                '--force',
+                '--quiet',
+            ],
+            App::basePath(),
+            null,
+        );
     }
 }

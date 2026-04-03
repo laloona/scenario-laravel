@@ -14,7 +14,7 @@ namespace Scenario\Laravel\Runtime;
 use Illuminate\Console\OutputStyle;
 use Symfony\Component\Process\Process;
 
-final class ProcessRunner
+final class ProcessRunner implements ProcessInterface
 {
     /**
      * @param list<string> $arguments

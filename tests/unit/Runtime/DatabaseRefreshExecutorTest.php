@@ -11,12 +11,9 @@
 
 namespace Scenario\Laravel\Tests\Unit\Runtime;
 
-use Illuminate\Contracts\Console\Kernel as ConsoleKernelContract;
-use Illuminate\Foundation\Application as LaravelApplication;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Facade;
 use Mockery;
-use Mockery\Expectation;
-use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Small;
@@ -40,15 +37,6 @@ use Scenario\Laravel\Runtime\DatabaseRefreshExecutor;
 #[Small]
 final class DatabaseRefreshExecutorTest extends TestCase
 {
-    private LaravelApplication $app;
-
-    protected function setUp(): void
-    {
-        Facade::clearResolvedInstances();
-        $this->app = new LaravelApplication('/app');
-        Facade::setFacadeApplication($this->app);
-    }
-
     protected function tearDown(): void
     {
         $configProperty = (new ReflectionClass(Application::class))->getProperty('configuration');
@@ -66,19 +54,13 @@ final class DatabaseRefreshExecutorTest extends TestCase
         ]);
         $this->setConfiguration($configuration);
 
-        $kernel = Mockery::mock(ConsoleKernelContract::class);
-        /** @var ConsoleKernelContract&MockInterface $kernel */
-        $kernel = $kernel;
-
-        /** @var Expectation $expectation */
-        $expectation = $kernel->shouldReceive('call');
-        $expectation->once()->with('migrate:fresh', [
+        Artisan::shouldReceive('call')
+            ->once()
+            ->with('migrate:fresh', [
             '--force' => true,
             '--database' => 'main',
             '--path' => 'database/main.php',
         ]);
-
-        $this->app->instance(ConsoleKernelContract::class, $kernel);
 
         (new DatabaseRefreshExecutor())->execute(new RefreshDatabase('main'));
 
@@ -87,16 +69,11 @@ final class DatabaseRefreshExecutorTest extends TestCase
 
     public function testExecuteCallsMigrateFreshWithoutOptionalParametersWhenConnectionIsMissing(): void
     {
-        /** @var ConsoleKernelContract&MockInterface $kernel */
-        $kernel = Mockery::mock(ConsoleKernelContract::class);
-
-        /** @var Expectation $expectation */
-        $expectation = $kernel->shouldReceive('call');
-        $expectation->once()->with('migrate:fresh', [
+        Artisan::shouldReceive('call')
+            ->once()
+            ->with('migrate:fresh', [
             '--force' => true,
         ]);
-
-        $this->app->instance(ConsoleKernelContract::class, $kernel);
 
         (new DatabaseRefreshExecutor())->execute(new RefreshDatabase(null));
 

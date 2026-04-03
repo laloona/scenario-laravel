@@ -14,13 +14,17 @@ namespace Scenario\Laravel\Tests\Unit\Command;
 use Illuminate\Console\Command;
 use Illuminate\Console\OutputStyle;
 use Mockery;
+use Mockery\Expectation;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Medium;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 use Scenario\Core\Attribute\AsScenario;
 use Scenario\Core\Attribute\Parameter;
+use Scenario\Core\Runtime\Application;
+use Scenario\Core\Runtime\Application\Configuration\Configuration;
 use Scenario\Core\Runtime\Exception\RegistryException;
 use Scenario\Core\Runtime\Metadata\ExecutionType;
 use Scenario\Core\Runtime\Metadata\ParameterType;
@@ -28,7 +32,6 @@ use Scenario\Core\Runtime\ScenarioDefinition;
 use Scenario\Core\Runtime\ScenarioRegistry;
 use Scenario\Laravel\Command\ScenarioApplyCommand;
 use Scenario\Laravel\Command\ScenarioCommand;
-use Scenario\Laravel\Facades\Shell;
 use Scenario\Laravel\Tests\Files\ValidScenario;
 use Scenario\Laravel\Tests\Unit\CommandMock;
 use Scenario\Laravel\Tests\Unit\LaravelMock;
@@ -52,22 +55,26 @@ final class ScenarioApplyCommandTest extends TestCase
 
     protected function setUp(): void
     {
+        $this->setScenarioConfiguration(self::createStub(Configuration::class));
         ScenarioRegistry::getInstance()->clear();
+        $this->setUpFacades();
     }
 
     protected function tearDown(): void
     {
-        Mockery::close();
+        $this->tearDownFacades();
         ScenarioRegistry::getInstance()->clear();
+        $this->setScenarioConfiguration(null);
     }
 
     public function testCommandIsConfigured(): void
     {
+        $this->setUpInstalled(true, 1);
         $command = new ScenarioApplyCommand();
 
         self::assertSame('scenario:apply', $command->getName());
         self::assertSame(
-            'Apply a given scenario, use --up or --down to choose how the scenario should be applied - should only be used for local/testing',
+            'Apply a given scenario, use --up or --down to choose how the scenario should be applied - should only be used for local/develop/testing',
             $command->getDescription(),
         );
         self::assertTrue($command->getDefinition()->hasOption('up'));
@@ -78,13 +85,18 @@ final class ScenarioApplyCommandTest extends TestCase
 
     public function testExecuteFailsWhenUpAndDownAreUsedTogether(): void
     {
+        $this->setUpInstalled(true, 2);
+        $this->basePathMock('/app/root');
         $this->commandMocks();
         $this->registerScenario();
 
-        Shell::shouldReceive('run')->never();
+        $process = $this->getProcessMock();
+        /** @var Expectation $expectation */
+        $expectation = $process->shouldReceive('run');
+        $expectation->never();
 
         $command = new ScenarioApplyCommand();
-        $command->setLaravel($this->getLaravelMock('/app/root'));
+        $command->setLaravel($this->getLaravelMock());
 
         $tester = new CommandTester($command);
 
@@ -98,12 +110,17 @@ final class ScenarioApplyCommandTest extends TestCase
 
     public function testExecuteFailsWhenNoScenariosWereFound(): void
     {
+        $this->setUpInstalled(true, 2);
+        $this->basePathMock('/app/root');
         $this->commandMocks();
 
-        Shell::shouldReceive('run')->never();
+        $process = $this->getProcessMock();
+        /** @var Expectation $expectation */
+        $expectation = $process->shouldReceive('run');
+        $expectation->never();
 
         $command = new ScenarioApplyCommand();
-        $command->setLaravel($this->getLaravelMock('/app/root'));
+        $command->setLaravel($this->getLaravelMock());
 
         $tester = new CommandTester($command);
 
@@ -113,20 +130,23 @@ final class ScenarioApplyCommandTest extends TestCase
 
     public function testExecuteRunsShellForDirectScenarioWithParametersAuditAndDown(): void
     {
+        $this->setUpInstalled(true, 2);
+        $this->basePathMock('/app/root');
         $this->commandMocks();
-        $this->basePathMock();
 
         $this->registerScenario();
 
-        Shell::shouldReceive('run')
-            ->once()
+        $process = $this->getProcessMock();
+        /** @var Expectation $expectation */
+        $expectation = $process->shouldReceive('run');
+        $expectation->once()
             ->with(
                 [
                     PHP_BINARY,
                     'vendor/bin/scenario',
                     'apply',
                     ValidScenario::class,
-                    'down',
+                    '--down',
                     '--parameter=myparam=hello',
                     '--parameter=flag=yes',
                     '--audit',
@@ -139,7 +159,7 @@ final class ScenarioApplyCommandTest extends TestCase
             ->andReturn(true);
 
         $command = new ScenarioApplyCommand();
-        $command->setLaravel($this->getLaravelMock('/app/root'));
+        $command->setLaravel($this->getLaravelMock());
 
         $tester = new CommandTester($command);
 
@@ -157,23 +177,26 @@ final class ScenarioApplyCommandTest extends TestCase
 
     public function testExecuteFallsBackToChoiceForUnknownScenarioAndPromptsForParameters(): void
     {
+        $this->setUpInstalled(true, 2);
+        $this->basePathMock('/app/root');
         $this->commandMocks();
-        $this->basePathMock();
 
         $this->registerScenario([
             new Parameter('myBool', ParameterType::Boolean, required: true),
             new Parameter('myInts', ParameterType::Integer, required: true, repeatable: true),
         ]);
 
-        Shell::shouldReceive('run')
-            ->once()
+        $process = $this->getProcessMock();
+        /** @var Expectation $expectation */
+        $expectation = $process->shouldReceive('run');
+        $expectation->once()
             ->with(
                 [
                     PHP_BINARY,
                     'vendor/bin/scenario',
                     'apply',
                     ValidScenario::class,
-                    'down',
+                    '--down',
                     '--parameter=myBool=yes',
                     '--parameter=myInts=5',
                     '--parameter=myInts=3',
@@ -187,7 +210,7 @@ final class ScenarioApplyCommandTest extends TestCase
             ->andReturn(true);
 
         $command = new ScenarioApplyCommand();
-        $command->setLaravel($this->getLaravelMock('/app/root'));
+        $command->setLaravel($this->getLaravelMock());
 
         $tester = new CommandTester($command);
         $tester->setInputs(['0', 'yes', '5', 'yes', '3', 'no']);
@@ -202,6 +225,23 @@ final class ScenarioApplyCommandTest extends TestCase
         self::assertStringContainsString('Given scenario [unknown] is not registered.', $tester->getDisplay());
     }
 
+    public function testExecuteCommandReturnsFailureWhenScenarioIsNotInstalled(): void
+    {
+        $this->setUpInstalled(false, 6);
+        $this->basePathMock('/app/root');
+        $this->commandMocks();
+
+        $process = $this->getProcessMock();
+        /** @var Expectation $expectation */
+        $expectation = $process->shouldReceive('run');
+        $expectation->never();
+
+        $command = new ScenarioApplyCommand();
+        $command->setLaravel($this->getLaravelMock());
+
+        self::assertSame(Command::FAILURE, (new CommandTester($command))->execute([]));
+    }
+
     /**
      * @param list<Parameter> $parameters
      */
@@ -213,5 +253,11 @@ final class ScenarioApplyCommandTest extends TestCase
             new AsScenario('valid'),
             $parameters,
         ));
+    }
+
+    private function setScenarioConfiguration(?Configuration $configuration): void
+    {
+        $property = (new ReflectionClass(Application::class))->getProperty('configuration');
+        $property->setValue(null, $configuration);
     }
 }

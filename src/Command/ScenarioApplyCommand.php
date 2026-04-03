@@ -42,14 +42,13 @@ final class ScenarioApplyCommand extends ScenarioCommand
 
     protected function executeCommand(): int
     {
-        (new Application())->prepare();
-
         if ($this->option('up') === true
             && $this->option('down') === true) {
             $this->error('You can just use either up or down scenarios.');
             return self::FAILURE;
         }
 
+        (new Application())->prepare();
         $scenarioDefinitions = ScenarioRegistry::getInstance()->all();
         if (count($scenarioDefinitions) === 0) {
             $this->error('No scenarios were found, please create one.');

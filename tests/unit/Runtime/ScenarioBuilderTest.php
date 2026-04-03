@@ -12,6 +12,7 @@
 namespace Scenario\Laravel\Tests\Unit\Runtime;
 
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Facade;
 use Mockery;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
@@ -37,6 +38,8 @@ final class ScenarioBuilderTest extends TestCase
     public function tearDown(): void
     {
         Mockery::close();
+        Facade::clearResolvedInstances();
+        Facade::setFacadeApplication(null);
     }
 
     public function testBuildReturnsScenarioInstanceWhenResolvedObjectIsValid(): void

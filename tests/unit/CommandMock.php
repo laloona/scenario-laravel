@@ -20,23 +20,22 @@ trait CommandMock
     {
         Config::shouldReceive('get')
             ->once()
-            ->with('scenario.allowed_envs', ['local', 'testing'])
-            ->andReturn(['local', 'testing']);
+            ->with('scenario.allowed_envs', ['local', 'develop', 'testing'])
+            ->andReturn(['local', 'develop', 'testing']);
 
         App::shouldReceive('environment')
             ->once()
-            ->with(['local', 'testing'])
+            ->with(['local', 'develop', 'testing'])
             ->andReturn(true);
     }
 
-    private function basePathMock(): void
+    private function basePathMock(string $root): void
     {
         App::shouldReceive('basePath')
-            ->twice()
-            ->andReturnUsing(static function (?string $path = null): string {
-                return $path === 'vendor/bin/scenario'
-                    ? 'vendor/bin/scenario'
-                    : '/app/root';
+            ->atLeast()
+            ->once()
+            ->andReturnUsing(static function (?string $path = null) use ($root): string {
+                return $path === null ? $root : $path;
             });
     }
 }

@@ -14,6 +14,7 @@ namespace Scenario\Laravel\Tests\Unit\Runtime;
 use Illuminate\Contracts\Queue\Factory;
 use Illuminate\Contracts\Queue\Queue;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Facade;
 use Mockery;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
@@ -29,6 +30,8 @@ final class ConsumerTest extends TestCase
     public function tearDown(): void
     {
         Mockery::close();
+        Facade::clearResolvedInstances();
+        Facade::setFacadeApplication(null);
     }
 
     public function testConsumeDoesNothingWhenQueueIsEmpty(): void

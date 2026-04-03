@@ -13,7 +13,7 @@ namespace Scenario\Laravel\Facades;
 
 use Illuminate\Console\OutputStyle;
 use Illuminate\Support\Facades\Facade;
-use Scenario\Laravel\Runtime\ProcessRunner;
+use Scenario\Laravel\Runtime\ProcessInterface;
 
 /**
  * @method static bool run(list<string> $arguments, string $directory, ?OutputStyle $output)
@@ -22,6 +22,6 @@ final class Shell extends Facade
 {
     protected static function getFacadeAccessor(): string
     {
-        return ProcessRunner::class;
+        return ProcessInterface::class;
     }
 }

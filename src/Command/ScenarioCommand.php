@@ -21,6 +21,8 @@ use const DIRECTORY_SEPARATOR;
 
 abstract class ScenarioCommand extends Command
 {
+    protected bool $requiresInstallation = true;
+
     final public function handle(): int
     {
         $allowedEnvs = Config::get('scenario.allowed_envs', ['local', 'develop', 'testing']);
@@ -38,7 +40,21 @@ abstract class ScenarioCommand extends Command
             return self::FAILURE;
         }
 
+        if ($this->isInstalled() !== $this->requiresInstallation) {
+            $this->error(
+                ($this->isInstalled() === true)
+                    ? 'Scenario is already installed.'
+                    : 'Scenario is not installed.',
+            );
+            return self::FAILURE;
+        }
+
         return $this->executeCommand();
+    }
+
+    final public function isHidden(): bool
+    {
+        return $this->isInstalled() !== $this->requiresInstallation;
     }
 
     final protected function getBlueprint(string $name): string
@@ -61,7 +77,7 @@ abstract class ScenarioCommand extends Command
         );
     }
 
-    public function isHidden(): bool
+    final protected function isInstalled(): bool
     {
         return File::exists(App::basePath('scenario.xml')) === true
             || File::exists(App::basePath('scenario.dist.xml')) === true;

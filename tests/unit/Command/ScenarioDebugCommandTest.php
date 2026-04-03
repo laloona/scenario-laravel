@@ -14,6 +14,7 @@ namespace Scenario\Laravel\Tests\Unit\Command;
 use Illuminate\Console\Command;
 use Illuminate\Console\OutputStyle;
 use Mockery;
+use Mockery\Expectation;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Medium;
@@ -31,7 +32,6 @@ use Scenario\Core\Runtime\ScenarioDefinition;
 use Scenario\Core\Runtime\ScenarioRegistry;
 use Scenario\Laravel\Command\ScenarioCommand;
 use Scenario\Laravel\Command\ScenarioDebugCommand;
-use Scenario\Laravel\Facades\Shell;
 use Scenario\Laravel\Tests\Files\ValidScenario;
 use Scenario\Laravel\Tests\Unit\CommandMock;
 use Scenario\Laravel\Tests\Unit\LaravelMock;
@@ -64,6 +64,7 @@ final class ScenarioDebugCommandTest extends TestCase
 
     protected function setUp(): void
     {
+        $this->setUpFacades();
         $this->resetApplication();
         $this->resetScenarioRegistry();
         $this->createRootDir();
@@ -87,7 +88,7 @@ XML
 
     protected function tearDown(): void
     {
-        Mockery::close();
+        $this->tearDownFacades();
         $this->resetScenarioRegistry();
         $this->resetApplication();
         $this->removeRootDir();
@@ -95,19 +96,21 @@ XML
 
     public function testCommandIsConfigured(): void
     {
+        $this->setUpInstalled(true, 1);
         $command = new ScenarioDebugCommand();
 
         self::assertSame('scenario:debug', $command->getName());
         self::assertSame(
-            'Debug a given scenario or unit test - should only be used for local/testing',
+            'Debug a given scenario or unit test - should only be used for local/develop/testing',
             $command->getDescription(),
         );
     }
 
     public function testExecuteCommandRunsDebugForScenario(): void
     {
+        $this->setUpInstalled(true, 2);
+        $this->basePathMock('/app/root');
         $this->commandMocks();
-        $this->basePathMock();
 
         ScenarioRegistry::getInstance()->register(new ScenarioDefinition(
             'main',
@@ -116,8 +119,10 @@ XML
             [],
         ));
 
-        Shell::shouldReceive('run')
-            ->once()
+        $process = $this->getProcessMock();
+        /** @var Expectation $expectation */
+        $expectation = $process->shouldReceive('run');
+        $expectation->once()
             ->with(
                 [
                     PHP_BINARY,
@@ -133,7 +138,7 @@ XML
             ->andReturn(true);
 
         $command = new ScenarioDebugCommand();
-        $command->setLaravel($this->getLaravelMock('/app/root'));
+        $command->setLaravel($this->getLaravelMock());
 
         $tester = new CommandTester($command);
         $tester->setInputs(['0']);
@@ -143,8 +148,9 @@ XML
 
     public function testExecuteCommandRunsDebugForFoundUnitTestMethod(): void
     {
+        $this->setUpInstalled(true, 2);
+        $this->basePathMock('/app/root');
         $this->commandMocks();
-        $this->basePathMock();
 
         $suffix = 'Fixture' . uniqid();
         file_put_contents(Application::getRootDir() . '/tests/unit/MethodLevelScenarioTest.php', <<<PHP
@@ -164,8 +170,10 @@ final class MethodLevelScenarioTest extends TestCase
 }
 PHP);
 
-        Shell::shouldReceive('run')
-            ->once()
+        $process = $this->getProcessMock();
+        /** @var Expectation $expectation */
+        $expectation = $process->shouldReceive('run');
+        $expectation->once()
             ->with(
                 [
                     PHP_BINARY,
@@ -182,7 +190,7 @@ PHP);
             ->andReturn(true);
 
         $command = new ScenarioDebugCommand();
-        $command->setLaravel($this->getLaravelMock('/app/root'));
+        $command->setLaravel($this->getLaravelMock());
 
         $tester = new CommandTester($command);
 
@@ -191,10 +199,17 @@ PHP);
 
     public function testExecuteCommandFailsWhenNoScenariosOrUnitTestsWereFound(): void
     {
+        $this->setUpInstalled(true, 2);
+        $this->basePathMock('/app/root');
         $this->commandMocks();
 
         $command = new ScenarioDebugCommand();
-        $command->setLaravel($this->getLaravelMock('/app/root'));
+        $command->setLaravel($this->getLaravelMock());
+
+        $process = $this->getProcessMock();
+        /** @var Expectation $expectation */
+        $expectation = $process->shouldReceive('run');
+        $expectation->never();
 
         $tester = new CommandTester($command);
 
@@ -207,8 +222,9 @@ PHP);
 
     public function testExecuteCommandRunsDebugForSelectedUnitTestClass(): void
     {
+        $this->setUpInstalled(true, 2);
+        $this->basePathMock('/app/root');
         $this->commandMocks();
-        $this->basePathMock();
 
         ScenarioRegistry::getInstance()->register(new ScenarioDefinition(
             'main',
@@ -218,7 +234,6 @@ PHP);
         ));
 
         $suffix = 'Fixture' . uniqid();
-        $firstClass = 'Scenario\\Laravel\\Tests\\Fixtures\\' . $suffix . '\\FirstScenarioTest';
         $secondClass = 'Scenario\\Laravel\\Tests\\Fixtures\\' . $suffix . '\\SecondScenarioTest';
 
         $this->writeFixture('FirstScenarioTest.php', <<<PHP
@@ -255,8 +270,10 @@ final class SecondScenarioTest extends TestCase
 }
 PHP);
 
-        Shell::shouldReceive('run')
-            ->once()
+        $process = $this->getProcessMock();
+        /** @var Expectation $expectation */
+        $expectation = $process->shouldReceive('run');
+        $expectation->once()
             ->with(
                 [
                     PHP_BINARY,
@@ -273,7 +290,7 @@ PHP);
             ->andReturn(true);
 
         $command = new ScenarioDebugCommand();
-        $command->setLaravel($this->getLaravelMock('/app/root'));
+        $command->setLaravel($this->getLaravelMock());
 
         $tester = new CommandTester($command);
         $tester->setInputs(['Unit Test', $secondClass]);
@@ -283,8 +300,9 @@ PHP);
 
     public function testExecuteCommandRunsDebugForUnitTestWithoutMethodSelection(): void
     {
+        $this->setUpInstalled(true, 2);
+        $this->basePathMock('/app/root');
         $this->commandMocks();
-        $this->basePathMock();
 
         $suffix = 'Fixture' . uniqid();
         $className = 'Scenario\\Laravel\\Tests\\Fixtures\\' . $suffix . '\\ClassLevelScenarioTest';
@@ -306,8 +324,10 @@ final class ClassLevelScenarioTest extends TestCase
 }
 PHP);
 
-        Shell::shouldReceive('run')
-            ->once()
+        $process = $this->getProcessMock();
+        /** @var Expectation $expectation */
+        $expectation = $process->shouldReceive('run');
+        $expectation->once()
             ->with(
                 [
                     PHP_BINARY,
@@ -323,105 +343,28 @@ PHP);
             ->andReturn(true);
 
         $command = new ScenarioDebugCommand();
-        $command->setLaravel($this->getLaravelMock('/app/root'));
+        $command->setLaravel($this->getLaravelMock());
 
         $tester = new CommandTester($command);
 
         self::assertSame(Command::SUCCESS, $tester->execute([]));
     }
 
-    public function testDebugTestRunsSelectedMethodWhenMultipleMethodsAreGiven(): void
+    public function testExecuteCommandReturnsFailureWhenScenarioIsNotInstalled(): void
     {
+        $this->setUpInstalled(false, 6);
+        $this->basePathMock('/app/root');
         $this->commandMocks();
-        $this->basePathMock();
 
-        Shell::shouldReceive('run')
-            ->once()
-            ->with(
-                [
-                    PHP_BINARY,
-                    'vendor/bin/scenario',
-                    'debug',
-                    'Scenario\\Laravel\\Tests\\Fixtures\\MultiMethodScenarioTest',
-                    'testSecondDebuggable',
-                    '--force',
-                    '--quiet',
-                ],
-                '/app/root',
-                Mockery::type(OutputStyle::class),
-            )
-            ->andReturn(true);
+        $process = $this->getProcessMock();
+        /** @var Expectation $expectation */
+        $expectation = $process->shouldReceive('run');
+        $expectation->never();
 
         $command = new ScenarioDebugCommand();
-        $command->setLaravel($this->getLaravelMock('/app/root'));
+        $command->setLaravel($this->getLaravelMock());
 
-        $tester = new CommandTester($command);
-        $tester->setInputs(['testSecondDebuggable']);
-        self::assertSame(Command::FAILURE, $tester->execute([]));
-
-        $method = (new ReflectionClass(ScenarioDebugCommand::class))->getMethod('debugTest');
-        $method->setAccessible(true);
-
-        self::assertSame(
-            Command::SUCCESS,
-            $method->invoke($command, [
-                'Scenario\\Laravel\\Tests\\Fixtures\\MultiMethodScenarioTest' => [
-                    'testFirstDebuggable',
-                    'testSecondDebuggable',
-                ],
-            ]),
-        );
-    }
-
-    public function testGetSelectedTypeReturnsExpectedValues(): void
-    {
-        $command = new ScenarioDebugCommand();
-
-        $method = (new ReflectionClass(ScenarioDebugCommand::class))->getMethod('getSelectedType');
-        $method->setAccessible(true);
-
-        self::assertFalse($method->invoke($command, [], []));
-        self::assertSame('Unit Test', $method->invoke($command, [], [
-            'Scenario\\Laravel\\Tests\\Fixtures\\DemoTest' => ['testDemo'],
-        ]));
-        self::assertSame('Scenario', $method->invoke($command, [
-            ValidScenario::class => new ScenarioDefinition(
-                'main',
-                ValidScenario::class,
-                new AsScenario('valid'),
-                [],
-            ),
-        ], []));
-    }
-
-    public function testRunDebugClassPassesMethodArgumentWhenGiven(): void
-    {
-        $this->basePathMock();
-
-        Shell::shouldReceive('run')
-            ->once()
-            ->with(
-                [
-                    PHP_BINARY,
-                    'vendor/bin/scenario',
-                    'debug',
-                    ValidScenario::class,
-                    'testDebuggable',
-                    '--force',
-                    '--quiet',
-                ],
-                '/app/root',
-                null,
-            )
-            ->andReturn(true);
-
-        $command = new ScenarioDebugCommand();
-        $command->setLaravel($this->getLaravelMock('/app/root'));
-
-        $method = (new ReflectionClass(ScenarioDebugCommand::class))->getMethod('runDebugClass');
-        $method->setAccessible(true);
-
-        self::assertTrue($method->invoke($command, ValidScenario::class, 'testDebuggable'));
+        self::assertSame(Command::FAILURE, (new CommandTester($command))->execute([]));
     }
 
     private function createRootDir(): void

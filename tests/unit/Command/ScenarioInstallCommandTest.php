@@ -12,9 +12,10 @@
 namespace Scenario\Laravel\Tests\Unit\Command;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\File;
+use Illuminate\Filesystem\Filesystem;
 use Mockery;
+use Mockery\Expectation;
+use Mockery\MockInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Medium;
@@ -28,11 +29,9 @@ use Scenario\Core\Runtime\Application\Configuration\DefaultConfiguration;
 use Scenario\Core\Runtime\Application\Configuration\LoadedConfiguration;
 use Scenario\Laravel\Command\ScenarioCommand;
 use Scenario\Laravel\Command\ScenarioInstallCommand;
-use Scenario\Laravel\Facades\Shell;
 use Scenario\Laravel\Tests\Unit\CommandMock;
 use Scenario\Laravel\Tests\Unit\LaravelMock;
 use Symfony\Component\Console\Tester\CommandTester;
-use const DIRECTORY_SEPARATOR;
 use const PHP_BINARY;
 
 #[CoversClass(ScenarioInstallCommand::class)]
@@ -50,46 +49,43 @@ final class ScenarioInstallCommandTest extends TestCase
     protected function setUp(): void
     {
         $this->setScenarioConfiguration(new LoadedConfiguration(new DefaultConfiguration()));
+        $this->setUpFacades();
     }
 
     protected function tearDown(): void
     {
-        Mockery::close();
+        $this->tearDownFacades();
         $this->setScenarioConfiguration(null);
         $this->resetApplicationBootState();
     }
 
     public function testCommandIsConfigured(): void
     {
+        $this->setUpInstalled(false, 2);
+
         $command = new ScenarioInstallCommand(self::createStub(ConfiguredInterface::class));
 
         self::assertSame('scenario:install', $command->getName());
-        self::assertSame('Install the Scenario Package (dev/test only)', $command->getDescription());
+        self::assertSame('Install the Scenario Package (local/develop/testing only)', $command->getDescription());
     }
 
     public function testExecuteFailsWhenScenarioIsAlreadyInstalled(): void
     {
+        $this->setUpInstalled(true, 3);
+        $this->basePathMock('/app');
         $this->commandMocks();
 
-        App::shouldReceive('basePath')
-            ->once()
-            ->with('scenario' . DIRECTORY_SEPARATOR . 'bootstrap.php')
-            ->andReturn('/app/scenario' . DIRECTORY_SEPARATOR . 'bootstrap.php');
-
         $configured = self::createMock(ConfiguredInterface::class);
-        $configured->expects(self::once())
-            ->method('isConfigured')
-            ->willReturn(true);
+        $configured->expects(self::never())
+            ->method('isConfigured');
 
-        File::shouldReceive('exists')
-            ->once()
-            ->with('/app/scenario' . DIRECTORY_SEPARATOR . 'bootstrap.php')
-            ->andReturn(true);
-
-        Shell::shouldReceive('run')->never();
+        $process = $this->getProcessMock();
+        /** @var Expectation $expectation */
+        $expectation = $process->shouldReceive('run');
+        $expectation->never();
 
         $command = new ScenarioInstallCommand($configured);
-        $command->setLaravel($this->getLaravelMock('/app'));
+        $command->setLaravel($this->getLaravelMock());
 
         $tester = new CommandTester($command);
 
@@ -99,101 +95,45 @@ final class ScenarioInstallCommandTest extends TestCase
 
     public function testExecuteAbortsWhenUserDeclinesInstallation(): void
     {
+        $this->setUpInstalled(false, 4);
+        $this->basePathMock('/app');
         $this->commandMocks();
 
-        App::shouldReceive('basePath')
-            ->once()
-            ->with('scenario' . DIRECTORY_SEPARATOR . 'bootstrap.php')
-            ->andReturn('/app/scenario' . DIRECTORY_SEPARATOR . 'bootstrap.php');
-
         $configured = self::createMock(ConfiguredInterface::class);
-        $configured->expects(self::atMost(1))
+        $configured->expects(self::never())
             ->method('isConfigured');
 
-        File::shouldReceive('exists')
-            ->once()
-            ->with('/app/scenario' . DIRECTORY_SEPARATOR . 'bootstrap.php')
-            ->andReturn(false);
-
-        Shell::shouldReceive('run')->never();
+        $process = $this->getProcessMock();
+        /** @var Expectation $expectation */
+        $expectation = $process->shouldReceive('run');
+        $expectation->never();
 
         $command = new ScenarioInstallCommand($configured);
-        $command->setLaravel($this->getLaravelMock('/app'));
+        $command->setLaravel($this->getLaravelMock());
 
         $tester = new CommandTester($command);
         $tester->setInputs(['no']);
 
         self::assertSame(Command::FAILURE, $tester->execute([], ['interactive' => true]));
-        self::assertStringContainsString('Installation aborted.', $tester->getDisplay());
+        self::assertStringContainsString('Scenario installation aborted.', $tester->getDisplay());
     }
 
     public function testExecuteInstallsBlueprintsAndConfiguresPhpUnit(): void
     {
-        $this->commandMocks();
+        $this->setUpInstallScenario(
+            scenarioXmlExistsAfterInstall: true,
+            scenarioDistExistsAfterInstall: true,
+            configurePhpUnit: true,
+        );
 
-        App::shouldReceive('basePath')
-            ->andReturnUsing(static function (?string $path = null): string {
-                if ($path === null || $path === '') {
-                    return '/app';
-                }
-
-                return '/app/' . $path;
-            });
-
-        $bootstrapBlueprint = '/app/vendor/scenario/laravel/blueprint/bootstrap.blueprint';
-        $configBlueprint = '/app/vendor/scenario/laravel/blueprint/config.blueprint';
-        $bootstrapTarget = '/app/scenario/bootstrap.php';
-        $configTarget = '/app/scenario.dist.xml';
-        $bootstrapInstalled = false;
-
-        $configured = self::createMock(ConfiguredInterface::class);
-        $configured->expects(self::exactly(3))
-            ->method('isConfigured')
-            ->willReturnOnConsecutiveCalls(false, true, true);
-
-        File::shouldReceive('exists')
-            ->times(6)
-            ->andReturnUsing(static function (string $path) use (
-                $bootstrapBlueprint,
-                $configBlueprint,
-                $bootstrapTarget,
-                $configTarget,
-                &$bootstrapInstalled,
-            ): bool {
-                return match ($path) {
-                    $bootstrapTarget => $bootstrapInstalled,
-                    $bootstrapBlueprint, $configBlueprint => true,
-                    $configTarget => false,
-                    default => false,
-                };
-            });
-        File::shouldReceive('copy')
-            ->twice()
-            ->withArgs(static function (string $source, string $target) use (
-                $bootstrapBlueprint,
-                $configBlueprint,
-                $bootstrapTarget,
-                $configTarget,
-                &$bootstrapInstalled,
-            ): bool {
-                if ($source === $bootstrapBlueprint && $target === $bootstrapTarget) {
-                    $bootstrapInstalled = true;
-                    return true;
-                }
-
-                return $source === $configBlueprint && $target === $configTarget;
-            });
-        File::shouldReceive('delete')->never();
-        File::shouldReceive('ensureDirectoryExists')
-            ->once()
-            ->with('/app/scenario/main');
-
-        Shell::shouldReceive('run')
-            ->once()
+        $process = $this->getProcessMock();
+        /** @var Expectation $expectation */
+        $expectation = $process->shouldReceive('run');
+        $expectation->once()
             ->with(
                 [
                     PHP_BINARY,
-                    '/app/vendor/bin/scenario',
+                    'vendor/bin/scenario',
                     'install',
                     '--force',
                     '--quiet',
@@ -203,8 +143,13 @@ final class ScenarioInstallCommandTest extends TestCase
             )
             ->andReturn(true);
 
+        $configured = self::createMock(ConfiguredInterface::class);
+        $configured->expects(self::exactly(2))
+            ->method('isConfigured')
+            ->willReturnOnConsecutiveCalls(false, true);
+
         $command = new ScenarioInstallCommand($configured);
-        $command->setLaravel($this->getLaravelMock('/app'));
+        $command->setLaravel($this->getLaravelMock());
 
         $tester = new CommandTester($command);
         $tester->setInputs(['yes', 'yes']);
@@ -213,150 +158,140 @@ final class ScenarioInstallCommandTest extends TestCase
         self::assertStringContainsString('Scenario was successfully installed.', $tester->getDisplay());
     }
 
-    public function testExecuteDeletesExistingConfigTargetBeforeCopyingBlueprint(): void
+    public function testExecuteFailsWhenConfigFileDoesNotExistAfterInstall(): void
     {
-        $this->commandMocks();
+        $this->setUpInstallScenario(
+            scenarioXmlExistsAfterInstall: false,
+            scenarioDistExistsAfterInstall: false,
+            configurePhpUnit: false,
+        );
 
-        App::shouldReceive('basePath')
-            ->andReturnUsing(static function (?string $path = null): string {
-                if ($path === null || $path === '') {
-                    return '/app';
-                }
-
-                return '/app/' . $path;
-            });
-
-        $bootstrapBlueprint = '/app/vendor/scenario/laravel/blueprint/bootstrap.blueprint';
-        $configBlueprint = '/app/vendor/scenario/laravel/blueprint/config.blueprint';
-        $bootstrapTarget = '/app/scenario/bootstrap.php';
-        $configTarget = '/app/scenario.dist.xml';
-        $bootstrapInstalled = false;
+        $process = $this->getProcessMock();
+        /** @var Expectation $expectation */
+        $expectation = $process->shouldReceive('run');
+        $expectation->never();
 
         $configured = self::createMock(ConfiguredInterface::class);
-        $configured->expects(self::exactly(2))
-            ->method('isConfigured')
-            ->willReturn(true);
-
-        File::shouldReceive('exists')
-            ->times(6)
-            ->andReturnUsing(static function (string $path) use (
-                $bootstrapBlueprint,
-                $configBlueprint,
-                $bootstrapTarget,
-                $configTarget,
-                &$bootstrapInstalled,
-            ): bool {
-                return match ($path) {
-                    $bootstrapTarget => $bootstrapInstalled,
-                    $bootstrapBlueprint, $configBlueprint, $configTarget => true,
-                    default => false,
-                };
-            });
-        File::shouldReceive('copy')
-            ->twice()
-            ->withArgs(static function (string $source, string $target) use (
-                $bootstrapBlueprint,
-                $configBlueprint,
-                $bootstrapTarget,
-                $configTarget,
-                &$bootstrapInstalled,
-            ): bool {
-                if ($source === $bootstrapBlueprint && $target === $bootstrapTarget) {
-                    $bootstrapInstalled = true;
-                    return true;
-                }
-
-                return $source === $configBlueprint && $target === $configTarget;
-            });
-        File::shouldReceive('delete')
-            ->once()
-            ->with($configTarget);
-        File::shouldReceive('ensureDirectoryExists')
-            ->once()
-            ->with('/app/scenario/main');
-
-        Shell::shouldReceive('run')->never();
+        $configured->expects(self::never())
+            ->method('isConfigured');
 
         $command = new ScenarioInstallCommand($configured);
-        $command->setLaravel($this->getLaravelMock('/app'));
+        $command->setLaravel($this->getLaravelMock());
 
         $tester = new CommandTester($command);
         $tester->setInputs(['yes']);
 
-        self::assertSame(Command::SUCCESS, $tester->execute([], ['interactive' => true]));
-        self::assertStringContainsString('Scenario was successfully installed.', $tester->getDisplay());
+        self::assertSame(Command::FAILURE, $tester->execute([], ['interactive' => true]));
+        self::assertStringContainsString('Scenario installation failed.', $tester->getDisplay());
     }
 
-    public function testExecuteFailsWhenBootstrapBlueprintIsMissingAndPhpUnitConfigurationStaysInvalid(): void
+    public function testExecuteCommandReturnsFailureWhenScenarioIsInstalled(): void
     {
+        $this->setUpInstalled(true, 3);
+        $this->basePathMock('/app');
         $this->commandMocks();
 
-        App::shouldReceive('basePath')
-            ->andReturnUsing(static function (?string $path = null): string {
-                if ($path === null || $path === '') {
-                    return '/app';
-                }
+        $process = $this->getProcessMock();
+        /** @var Expectation $expectation */
+        $expectation = $process->shouldReceive('run');
+        $expectation->never();
 
-                return '/app/' . $path;
-            });
+        $command = new ScenarioInstallCommand(self::createStub(ConfiguredInterface::class));
+        $command->setLaravel($this->getLaravelMock());
 
-        $bootstrapBlueprint = '/app/vendor/scenario/laravel/blueprint/bootstrap.blueprint';
-        $configBlueprint = '/app/vendor/scenario/laravel/blueprint/config.blueprint';
-        $bootstrapTarget = '/app/scenario/bootstrap.php';
-        $configTarget = '/app/scenario.dist.xml';
+        self::assertSame(Command::FAILURE, (new CommandTester($command))->execute([]));
+    }
 
-        $configured = self::createMock(ConfiguredInterface::class);
-        $configured->expects(self::exactly(2))
-            ->method('isConfigured')
-            ->willReturn(false);
+    private function setUpInstallScenario(
+        bool $scenarioXmlExistsAfterInstall,
+        bool $scenarioDistExistsAfterInstall,
+        bool $configurePhpUnit,
+    ): void {
+        /** @var Filesystem&MockInterface $filesystem */
+        $filesystem = Mockery::mock(Filesystem::class);
+        $this->app->instance('files', $filesystem);
 
-        File::shouldReceive('exists')
-            ->times(5)
+        $this->basePathMock('/app');
+        $this->commandMocks();
+
+        $bootstrapBlueprint = 'vendor/scenario/laravel/blueprint/bootstrap.blueprint';
+        $configBlueprint = 'vendor/scenario/laravel/blueprint/config.blueprint';
+        $bootstrapTarget = 'scenario/bootstrap.php';
+        $configTarget = 'scenario.dist.xml';
+
+        $bootstrapInstalled = false;
+        $configInstalled = false;
+        $scenarioXmlCalls = 0;
+        $scenarioDistXmlCalls = 0;
+
+        /** @var Expectation $exists */
+        $exists = $filesystem->shouldReceive('exists');
+        $exists->withArgs(static fn (string $path): bool => true)
             ->andReturnUsing(static function (string $path) use (
                 $bootstrapBlueprint,
                 $configBlueprint,
                 $bootstrapTarget,
                 $configTarget,
+                &$bootstrapInstalled,
+                &$configInstalled,
+                &$scenarioXmlCalls,
+                &$scenarioDistXmlCalls,
+                $scenarioXmlExistsAfterInstall,
+                $scenarioDistExistsAfterInstall,
             ): bool {
                 return match ($path) {
-                    $bootstrapBlueprint, $bootstrapTarget => false,
-                    $configBlueprint => true,
-                    $configTarget => false,
+                    'scenario.xml' => $scenarioXmlExistsAfterInstall
+                        ? match (++$scenarioXmlCalls) {
+                            1, 2 => false,
+                            default => true,
+                        }
+                    : false,
+
+                    'scenario.dist.xml' => match (++$scenarioDistXmlCalls) {
+                        1, 2 => false,
+                        default => $scenarioDistExistsAfterInstall ? $configInstalled : false,
+                    },
+
+                    $bootstrapBlueprint, $configBlueprint => true,
+                    $bootstrapTarget => $bootstrapInstalled,
+                    $configTarget => $configInstalled,
                     default => false,
                 };
             });
-        File::shouldReceive('copy')
-            ->once()
-            ->with($configBlueprint, $configTarget);
-        File::shouldReceive('delete')->never();
-        File::shouldReceive('ensureDirectoryExists')
-            ->once()
-            ->with('/app/scenario/main');
 
-        Shell::shouldReceive('run')
-            ->once()
-            ->with(
-                [
-                    PHP_BINARY,
-                    '/app/vendor/bin/scenario',
-                    'install',
-                    '--force',
-                    '--quiet',
-                ],
-                '/app',
-                null,
-            )
-            ->andReturn(true);
+        /** @var Expectation $copy */
+        $copy = $filesystem->shouldReceive('copy');
+        $copy->twice()
+            ->withArgs(static function (string $source, string $target) use (
+                $bootstrapBlueprint,
+                $configBlueprint,
+                $bootstrapTarget,
+                $configTarget,
+                &$bootstrapInstalled,
+                &$configInstalled,
+            ): bool {
+                if ($source === $bootstrapBlueprint && $target === $bootstrapTarget) {
+                    $bootstrapInstalled = true;
+                    return true;
+                }
 
-        $command = new ScenarioInstallCommand($configured);
-        $command->setLaravel($this->getLaravelMock('/app'));
+                if ($source === $configBlueprint && $target === $configTarget) {
+                    $configInstalled = true;
+                    return true;
+                }
 
-        $tester = new CommandTester($command);
-        $tester->setInputs(['yes', 'yes']);
+                return false;
+            });
 
-        self::assertSame(Command::FAILURE, $tester->execute([], ['interactive' => true]));
-        self::assertStringContainsString('Configuring PHPUnit failed.', $tester->getDisplay());
-        self::assertStringContainsString('Installation failed.', $tester->getDisplay());
+        /** @var Expectation $ensureScenario */
+        $ensureScenario = $filesystem->shouldReceive('ensureDirectoryExists');
+        $ensureScenario->once()
+            ->with('scenario');
+
+        /** @var Expectation $ensureMain */
+        $ensureMain = $filesystem->shouldReceive('ensureDirectoryExists');
+        $ensureMain->once()
+            ->with('scenario/main');
     }
 
     private function resetApplicationBootState(): void

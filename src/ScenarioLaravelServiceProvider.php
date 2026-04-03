@@ -21,6 +21,7 @@ use Scenario\Laravel\Command\ScenarioInstallCommand;
 use Scenario\Laravel\Command\ScenarioListCommand;
 use Scenario\Laravel\Command\ScenarioMakeCommand;
 use Scenario\Laravel\Runtime\Consumer;
+use Scenario\Laravel\Runtime\ProcessInterface;
 use Scenario\Laravel\Runtime\ProcessRunner;
 use function config_path;
 use const DIRECTORY_SEPARATOR;
@@ -44,7 +45,7 @@ final class ScenarioLaravelServiceProvider extends ServiceProvider
 
         $this->app->singleton(ConfiguredInterface::class, Configured::class);
         $this->app->singleton(Consumer::class, Consumer::class);
-        $this->app->singleton(ProcessRunner::class, ProcessRunner::class);
+        $this->app->singleton(ProcessInterface::class, ProcessRunner::class);
     }
 
     public function boot(): void

@@ -13,21 +13,17 @@ namespace Scenario\Laravel\Tests\Unit;
 
 use Illuminate\Console\Command;
 use Illuminate\Console\OutputStyle;
-use Illuminate\Support\Facades\App;
 use Mockery;
+use Mockery\Expectation;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
-use ReflectionClass;
+use Scenario\Core\Runtime\ScenarioRegistry;
 use Scenario\Laravel\Command\ScenarioCommand;
 use Scenario\Laravel\Command\ScenarioListCommand;
-use Scenario\Laravel\Facades\Shell;
 use Symfony\Component\Console\Tester\CommandTester;
-use function fwrite;
 use const PHP_BINARY;
-use const PHP_EOL;
-use const STDERR;
 
 #[CoversClass(ScenarioCommand::class)]
 #[CoversClass(ScenarioListCommand::class)]
@@ -38,38 +34,39 @@ final class ScenarioListCommandTest extends TestCase
     use LaravelMock;
     use CommandMock;
 
-    public function test_command_file_path(): void
+    protected function setUp(): void
     {
-        $file = (new ReflectionClass(\Scenario\Laravel\Command\ScenarioListCommand::class))->getFileName();
+        ScenarioRegistry::getInstance()->clear();
+        $this->setUpFacades();
+    }
 
-        fwrite(STDERR, $file . PHP_EOL);
-
-        self::assertNotFalse($file);
-        self::assertStringContainsString('/app/src/Command/ScenarioListCommand.php', $file);
+    protected function tearDown(): void
+    {
+        $this->tearDownFacades();
     }
 
     public function testCommandIsConfigured(): void
     {
+        $this->setUpInstalled(true, 1);
         $command = new ScenarioListCommand();
 
         self::assertSame('scenario:list', $command->getName());
         self::assertSame(
-            'List all available scenarios, use --suite="name of your suite" if you want to see just one suite - should only be used for local/testing',
+            'List all available scenarios, use --suite="name of your suite" if you want to see just one suite - should only be used for local/develop/testing',
             $command->getDescription(),
         );
     }
 
     public function testExecuteCommandRunsListWithoutSuite(): void
     {
+        $this->setUpInstalled(true, 2);
+        $this->basePathMock('/app/root');
         $this->commandMocks();
-        $this->basePathMock();
 
-        App::shouldReceive('basePath')
-            ->twice()
-            ->andReturn('vendor/bin/scenario', '/app/root');
-
-        Shell::shouldReceive('run')
-            ->once()
+        $process = $this->getProcessMock();
+        /** @var Expectation $expectation */
+        $expectation = $process->shouldReceive('run');
+        $expectation->once()
             ->with(
                 [
                     PHP_BINARY,
@@ -84,7 +81,7 @@ final class ScenarioListCommandTest extends TestCase
             ->andReturn(true);
 
         $command = new ScenarioListCommand();
-        $command->setLaravel($this->getLaravelMock('/app/root'));
+        $command->setLaravel($this->getLaravelMock());
 
         self::assertSame(
             Command::SUCCESS,
@@ -94,11 +91,14 @@ final class ScenarioListCommandTest extends TestCase
 
     public function testExecuteCommandRunsListWithSuite(): void
     {
+        $this->setUpInstalled(true, 2);
+        $this->basePathMock('/app/root');
         $this->commandMocks();
-        $this->basePathMock();
 
-        Shell::shouldReceive('run')
-            ->once()
+        $process = $this->getProcessMock();
+        /** @var Expectation $expectation */
+        $expectation = $process->shouldReceive('run');
+        $expectation->once()
             ->with(
                 [
                     PHP_BINARY,
@@ -114,7 +114,7 @@ final class ScenarioListCommandTest extends TestCase
             ->andReturn(true);
 
         $command = new ScenarioListCommand();
-        $command->setLaravel($this->getLaravelMock('/app/root'));
+        $command->setLaravel($this->getLaravelMock());
 
         self::assertSame(
             Command::SUCCESS,
@@ -126,15 +126,35 @@ final class ScenarioListCommandTest extends TestCase
 
     public function testExecuteCommandReturnsFailureWhenShellFails(): void
     {
+        $this->setUpInstalled(true, 2);
+        $this->basePathMock('/app/root');
         $this->commandMocks();
-        $this->basePathMock();
 
-        Shell::shouldReceive('run')
-            ->once()
+        $process = $this->getProcessMock();
+        /** @var Expectation $expectation */
+        $expectation = $process->shouldReceive('run');
+        $expectation->once()
             ->andReturn(false);
 
         $command = new ScenarioListCommand();
-        $command->setLaravel($this->getLaravelMock('/app/root'));
+        $command->setLaravel($this->getLaravelMock());
+
+        self::assertSame(Command::FAILURE, (new CommandTester($command))->execute([]));
+    }
+
+    public function testExecuteCommandReturnsFailureWhenScenarioIsNotInstalled(): void
+    {
+        $this->setUpInstalled(false, 6);
+        $this->basePathMock('/app/root');
+        $this->commandMocks();
+
+        $process = $this->getProcessMock();
+        /** @var Expectation $expectation */
+        $expectation = $process->shouldReceive('run');
+        $expectation->never();
+
+        $command = new ScenarioListCommand();
+        $command->setLaravel($this->getLaravelMock());
 
         self::assertSame(Command::FAILURE, (new CommandTester($command))->execute([]));
     }
