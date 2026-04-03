@@ -13,6 +13,8 @@ namespace Scenario\Laravel\Tests\Unit;
 
 use Illuminate\Console\Command;
 use Illuminate\Console\OutputStyle;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Config;
 use Mockery;
 use Mockery\Expectation;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -56,6 +58,65 @@ final class ScenarioListCommandTest extends TestCase
             $command->getDescription(),
         );
         self::assertFalse($command->isHidden());
+    }
+
+    public function testExecuteCommandReturnsFailureWhenAllowedEnvsConfigIsNotArray(): void
+    {
+        $this->setUpInstalled(true, 1);
+        $this->basePathMock('/app/root');
+
+        Config::shouldReceive('get')
+            ->once()
+            ->with('scenario.allowed_envs', ['local', 'develop', 'testing'])
+            ->andReturn('invalid');
+
+        App::shouldReceive('environment')->never();
+
+        $process = $this->getProcessMock();
+        /** @var Expectation $expectation */
+        $expectation = $process->shouldReceive('run');
+        $expectation->never();
+
+        $command = new ScenarioListCommand();
+        $command->setLaravel($this->getLaravelMock());
+
+        $tester = new CommandTester($command);
+
+        self::assertSame(Command::FAILURE, $tester->execute([]));
+        self::assertStringContainsString('Configuration key "scenario.allowed_envs" must be an array.', $tester->getDisplay());
+    }
+
+    public function testExecuteCommandReturnsFailureWhenEnvironmentIsNotAllowed(): void
+    {
+        $this->setUpInstalled(true, 1);
+        $this->basePathMock('/app/root');
+
+        Config::shouldReceive('get')
+            ->once()
+            ->with('scenario.allowed_envs', ['local', 'develop', 'testing'])
+            ->andReturn(['local', 'develop', 'testing']);
+
+        App::shouldReceive('environment')
+            ->once()
+            ->with(['local', 'develop', 'testing'])
+            ->andReturn(false);
+        App::shouldReceive('environment')
+            ->once()
+            ->withNoArgs()
+            ->andReturn('production');
+
+        $process = $this->getProcessMock();
+        /** @var Expectation $expectation */
+        $expectation = $process->shouldReceive('run');
+        $expectation->never();
+
+        $command = new ScenarioListCommand();
+        $command->setLaravel($this->getLaravelMock());
+
+        $tester = new CommandTester($command);
+
+        self::assertSame(Command::FAILURE, $tester->execute([]));
+        self::assertStringContainsString('Scenarios are not allowed in "production" environment.', $tester->getDisplay());
     }
 
     public function testExecuteCommandRunsListWithoutSuite(): void
