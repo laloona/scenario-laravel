@@ -121,22 +121,21 @@ final class ScenarioApplyCommand extends ScenarioCommand
                                 break;
                             }
 
-                            if (!is_string($answer) || $parameter->type->valid($answer) === false) {
+                            if (is_string($answer) === false
+                                || $parameter->type->valid($answer) === false) {
                                 $this->error('Input was invalid, please try again.');
                                 continue;
                             }
 
                             if ($parameter->repeatable === true) {
                                 $parameters[] = $parameter->name . '=' . $answer;
-
                                 while ($this->confirm('Do you want to continue?', false) === true) {
                                     $answer = $this->ask($ask, $parameter->asString($parameter->default));
-
-                                    if (!is_string($answer) || $parameter->type->valid($answer) === false) {
+                                    if (is_string($answer) === false
+                                        || $parameter->type->valid($answer) === false) {
                                         $this->error('Input was invalid, please try again.');
                                         continue;
                                     }
-
                                     $parameters[] = $parameter->name . '=' . $answer;
                                 }
                             } else {

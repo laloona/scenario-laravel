@@ -226,6 +226,123 @@ final class ScenarioApplyCommandTest extends TestCase
         self::assertStringContainsString('Given scenario [unknown] is not registered.', $tester->getDisplay());
     }
 
+    public function testExecuteRepeatsInputWhenRequiredParameterIsInvalid(): void
+    {
+        $this->setUpInstalled(true, 2);
+        $this->basePathMock('/app/root');
+        $this->commandMocks();
+
+        $this->registerScenario([
+            new Parameter('myInt', ParameterType::Integer, required: true),
+        ]);
+
+        $process = $this->getProcessMock();
+        /** @var Expectation $expectation */
+        $expectation = $process->shouldReceive('run');
+        $expectation->once()
+            ->with(
+                [
+                    PHP_BINARY,
+                    'vendor/bin/scenario',
+                    'apply',
+                    ValidScenario::class,
+                    '--up',
+                    '--parameter=myInt=5',
+                    '--force',
+                    '--quiet',
+                ],
+                '/app/root',
+                Mockery::type(OutputStyle::class),
+            )
+            ->andReturn(true);
+
+        $command = new ScenarioApplyCommand();
+        $command->setLaravel($this->getLaravelMock());
+
+        $tester = new CommandTester($command);
+        $tester->setInputs(['0', 'abc', '5']);
+
+        self::assertSame(Command::SUCCESS, $tester->execute(['scenario' => 'unknown'], ['interactive' => true]));
+        self::assertStringContainsString('Input was invalid, please try again.', $tester->getDisplay());
+    }
+
+    public function testExecuteRepeatsInputWhenRepeatableParameterValueIsInvalid(): void
+    {
+        $this->setUpInstalled(true, 2);
+        $this->basePathMock('/app/root');
+        $this->commandMocks();
+
+        $this->registerScenario([
+            new Parameter('myInts', ParameterType::Integer, required: true, repeatable: true),
+        ]);
+
+        $process = $this->getProcessMock();
+        /** @var Expectation $expectation */
+        $expectation = $process->shouldReceive('run');
+        $expectation->once()
+            ->with(
+                [
+                    PHP_BINARY,
+                    'vendor/bin/scenario',
+                    'apply',
+                    ValidScenario::class,
+                    '--up',
+                    '--parameter=myInts=5',
+                    '--parameter=myInts=3',
+                    '--force',
+                    '--quiet',
+                ],
+                '/app/root',
+                Mockery::type(OutputStyle::class),
+            )
+            ->andReturn(true);
+
+        $command = new ScenarioApplyCommand();
+        $command->setLaravel($this->getLaravelMock());
+
+        $tester = new CommandTester($command);
+        $tester->setInputs(['0', '5', 'yes', 'abc', 'yes', '3', 'no']);
+
+        self::assertSame(Command::SUCCESS, $tester->execute([], ['interactive' => true]));
+        self::assertStringContainsString('Input was invalid, please try again.', $tester->getDisplay());
+    }
+
+    public function testExecuteFailsWhenProcessFails(): void
+    {
+        $this->setUpInstalled(true, 2);
+        $this->basePathMock('/app/root');
+        $this->commandMocks();
+
+        $this->registerScenario([]);
+
+        $process = $this->getProcessMock();
+        /** @var Expectation $expectation */
+        $expectation = $process->shouldReceive('run');
+        $expectation->once()
+            ->with(
+                [
+                    PHP_BINARY,
+                    'vendor/bin/scenario',
+                    'apply',
+                    ValidScenario::class,
+                    '--up',
+                    '--force',
+                    '--quiet',
+                ],
+                '/app/root',
+                Mockery::type(OutputStyle::class),
+            )
+            ->andReturn(false);
+
+        $command = new ScenarioApplyCommand();
+        $command->setLaravel($this->getLaravelMock());
+
+        $tester = new CommandTester($command);
+        $tester->setInputs([]);
+
+        self::assertSame(Command::FAILURE, $tester->execute(['scenario' => 'valid'], ['interactive' => true]));
+    }
+
     public function testExecuteCommandReturnsFailureWhenScenarioIsNotInstalled(): void
     {
         $this->setUpInstalled(false, 8);
