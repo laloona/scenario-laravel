@@ -47,7 +47,7 @@ final class ScenarioListCommandTest extends TestCase
 
     public function testCommandIsConfigured(): void
     {
-        $this->setUpInstalled(true, 1);
+        $this->setUpInstalled(true, 2);
         $command = new ScenarioListCommand();
 
         self::assertSame('scenario:list', $command->getName());
@@ -55,6 +55,7 @@ final class ScenarioListCommandTest extends TestCase
             'List all available scenarios, use --suite="name of your suite" if you want to see just one suite - should only be used for local/develop/testing',
             $command->getDescription(),
         );
+        self::assertFalse($command->isHidden());
     }
 
     public function testExecuteCommandRunsListWithoutSuite(): void
@@ -144,7 +145,7 @@ final class ScenarioListCommandTest extends TestCase
 
     public function testExecuteCommandReturnsFailureWhenScenarioIsNotInstalled(): void
     {
-        $this->setUpInstalled(false, 6);
+        $this->setUpInstalled(false, 8);
         $this->basePathMock('/app/root');
         $this->commandMocks();
 
@@ -156,6 +157,7 @@ final class ScenarioListCommandTest extends TestCase
         $command = new ScenarioListCommand();
         $command->setLaravel($this->getLaravelMock());
 
+        self::assertTrue($command->isHidden());
         self::assertSame(Command::FAILURE, (new CommandTester($command))->execute([]));
     }
 }

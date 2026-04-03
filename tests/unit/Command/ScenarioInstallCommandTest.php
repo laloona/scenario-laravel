@@ -61,17 +61,17 @@ final class ScenarioInstallCommandTest extends TestCase
 
     public function testCommandIsConfigured(): void
     {
-        $this->setUpInstalled(false, 2);
-
+        $this->setUpInstalled(false, 4);
         $command = new ScenarioInstallCommand(self::createStub(ConfiguredInterface::class));
 
         self::assertSame('scenario:install', $command->getName());
         self::assertSame('Install the Scenario Package (local/develop/testing only)', $command->getDescription());
+        self::assertFalse($command->isHidden());
     }
 
     public function testExecuteFailsWhenScenarioIsAlreadyInstalled(): void
     {
-        $this->setUpInstalled(true, 3);
+        $this->setUpInstalled(true, 4);
         $this->basePathMock('/app');
         $this->commandMocks();
 
@@ -89,6 +89,7 @@ final class ScenarioInstallCommandTest extends TestCase
 
         $tester = new CommandTester($command);
 
+        self::assertTrue($command->isHidden());
         self::assertSame(Command::FAILURE, $tester->execute([]));
         self::assertStringContainsString('Scenario is already installed.', $tester->getDisplay());
     }

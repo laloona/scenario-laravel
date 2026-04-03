@@ -69,7 +69,7 @@ final class ScenarioApplyCommandTest extends TestCase
 
     public function testCommandIsConfigured(): void
     {
-        $this->setUpInstalled(true, 1);
+        $this->setUpInstalled(true, 2);
         $command = new ScenarioApplyCommand();
 
         self::assertSame('scenario:apply', $command->getName());
@@ -81,6 +81,7 @@ final class ScenarioApplyCommandTest extends TestCase
         self::assertTrue($command->getDefinition()->hasOption('down'));
         self::assertTrue($command->getDefinition()->hasOption('parameter'));
         self::assertTrue($command->getDefinition()->hasOption('audit'));
+        self::assertFalse($command->isHidden());
     }
 
     public function testExecuteFailsWhenUpAndDownAreUsedTogether(): void
@@ -227,7 +228,7 @@ final class ScenarioApplyCommandTest extends TestCase
 
     public function testExecuteCommandReturnsFailureWhenScenarioIsNotInstalled(): void
     {
-        $this->setUpInstalled(false, 6);
+        $this->setUpInstalled(false, 8);
         $this->basePathMock('/app/root');
         $this->commandMocks();
 
@@ -239,6 +240,7 @@ final class ScenarioApplyCommandTest extends TestCase
         $command = new ScenarioApplyCommand();
         $command->setLaravel($this->getLaravelMock());
 
+        self::assertTrue($command->isHidden());
         self::assertSame(Command::FAILURE, (new CommandTester($command))->execute([]));
     }
 

@@ -62,11 +62,12 @@ final class ScenarioMakeCommandTest extends TestCase
 
     public function testCommandIsConfigured(): void
     {
-        $this->setUpInstalled(true, 1);
+        $this->setUpInstalled(true, 2);
         $command = new ScenarioMakeCommand();
 
         self::assertSame('scenario:make', $command->getName());
         self::assertSame('Make a scenario - should only be used for local/develop/testing', $command->getDescription());
+        self::assertFalse($command->isHidden());
     }
 
     public function testExecuteGeneratesScenarioFileFromBlueprint(): void
@@ -367,7 +368,7 @@ PHP);
 
     public function testExecuteCommandReturnsFailureWhenScenarioIsNotInstalled(): void
     {
-        $this->setUpInstalled(false, 6);
+        $this->setUpInstalled(false, 8);
         $this->basePathMock('/app/root');
         $this->commandMocks();
 
@@ -379,6 +380,7 @@ PHP);
         $command = new ScenarioMakeCommand();
         $command->setLaravel($this->getLaravelMock());
 
+        self::assertTrue($command->isHidden());
         self::assertSame(Command::FAILURE, (new CommandTester($command))->execute([]));
     }
 

@@ -96,7 +96,7 @@ XML
 
     public function testCommandIsConfigured(): void
     {
-        $this->setUpInstalled(true, 1);
+        $this->setUpInstalled(true, 2);
         $command = new ScenarioDebugCommand();
 
         self::assertSame('scenario:debug', $command->getName());
@@ -104,6 +104,7 @@ XML
             'Debug a given scenario or unit test - should only be used for local/develop/testing',
             $command->getDescription(),
         );
+        self::assertFalse($command->isHidden());
     }
 
     public function testExecuteCommandRunsDebugForScenario(): void
@@ -352,7 +353,7 @@ PHP);
 
     public function testExecuteCommandReturnsFailureWhenScenarioIsNotInstalled(): void
     {
-        $this->setUpInstalled(false, 6);
+        $this->setUpInstalled(false, 8);
         $this->basePathMock('/app/root');
         $this->commandMocks();
 
@@ -364,6 +365,7 @@ PHP);
         $command = new ScenarioDebugCommand();
         $command->setLaravel($this->getLaravelMock());
 
+        self::assertTrue($command->isHidden());
         self::assertSame(Command::FAILURE, (new CommandTester($command))->execute([]));
     }
 
