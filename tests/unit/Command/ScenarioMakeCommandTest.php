@@ -11,8 +11,9 @@
 
 namespace Scenario\Laravel\Tests\Unit\Command;
 
-use Illuminate\Support\Facades\File;
+use Illuminate\Console\Command;
 use Mockery;
+use Mockery\Expectation;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Medium;
@@ -28,7 +29,6 @@ use Scenario\Laravel\Command\ScenarioCommand;
 use Scenario\Laravel\Command\ScenarioMakeCommand;
 use Scenario\Laravel\Tests\Unit\CommandMock;
 use Scenario\Laravel\Tests\Unit\LaravelMock;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 
 #[CoversClass(ScenarioMakeCommand::class)]
@@ -46,6 +46,7 @@ final class ScenarioMakeCommandTest extends TestCase
 
     protected function setUp(): void
     {
+        $this->setUpFacades();
         $configuration = new LoadedConfiguration(new DefaultConfiguration());
         $configuration->setSuites([
             'main' => new SuiteValue('main', 'scenario/main'),
@@ -55,28 +56,32 @@ final class ScenarioMakeCommandTest extends TestCase
 
     protected function tearDown(): void
     {
-        Mockery::close();
+        $this->tearDownFacades();
         $this->setScenarioConfiguration(null);
     }
 
     public function testCommandIsConfigured(): void
     {
+        $this->setUpInstalled(true, 1);
         $command = new ScenarioMakeCommand();
 
         self::assertSame('scenario:make', $command->getName());
-        self::assertSame('Make a scenario - should only be used for local/testing', $command->getDescription());
+        self::assertSame('Make a scenario - should only be used for local/develop/testing', $command->getDescription());
     }
 
     public function testExecuteGeneratesScenarioFileFromBlueprint(): void
     {
-        $blueprint = '/app/vendor/scenario/laravel/blueprint/scenario.blueprint';
-        $scenarioFile = '/app/scenario/main/DemoScenario.php';
-        $scenarioExists = false;
-
+        $filesystem = $this->setUpInstalled(true, 2);
+        $this->basePathMock('/app/root');
         $this->commandMocks();
 
-        File::shouldReceive('exists')
-            ->times(3)
+        $blueprint = 'vendor/scenario/laravel/blueprint/scenario.blueprint';
+        $scenarioFile = 'scenario/main/DemoScenario.php';
+        $scenarioExists = false;
+
+        /** @var Expectation $exists */
+        $exists = $filesystem->shouldReceive('exists');
+        $exists->times(3)
             ->andReturnUsing(function (string $path) use ($blueprint, $scenarioFile, &$scenarioExists): bool {
                 return match ($path) {
                     $blueprint => true,
@@ -84,8 +89,9 @@ final class ScenarioMakeCommandTest extends TestCase
                     default => false,
                 };
             });
-        File::shouldReceive('get')
-            ->once()
+        /** @var Expectation $get */
+        $get = $filesystem->shouldReceive('get');
+        $get->once()
             ->with($blueprint)
             ->andReturn(<<<'PHP'
 <?php
@@ -96,8 +102,9 @@ final class %className%
 {
 }
 PHP);
-        File::shouldReceive('put')
-            ->once()
+        /** @var Expectation $put */
+        $put = $filesystem->shouldReceive('put');
+        $put->once()
             ->with(
                 $scenarioFile,
                 Mockery::on(function (string $content) use (&$scenarioExists): bool {
@@ -109,7 +116,7 @@ PHP);
             );
 
         $command = new ScenarioMakeCommand();
-        $command->setLaravel($this->getLaravelMock('/app'));
+        $command->setLaravel($this->getLaravelMock());
 
         $tester = new CommandTester($command);
         $tester->setInputs(['demoScenario']);
@@ -120,19 +127,26 @@ PHP);
 
     public function testExecuteFailsWhenBlueprintDoesNotExist(): void
     {
-        $blueprint = '/app/vendor/scenario/laravel/blueprint/scenario.blueprint';
-
+        $filesystem = $this->setUpInstalled(true, 2);
+        $this->basePathMock('/app/root');
         $this->commandMocks();
 
-        File::shouldReceive('exists')
-            ->once()
+        $blueprint = 'vendor/scenario/laravel/blueprint/scenario.blueprint';
+
+        /** @var Expectation $exists */
+        $exists = $filesystem->shouldReceive('exists');
+        $exists->once()
             ->with($blueprint)
             ->andReturn(false);
-        File::shouldReceive('get')->never();
-        File::shouldReceive('put')->never();
+        /** @var Expectation $get */
+        $get = $filesystem->shouldReceive('get');
+        $get->never();
+        /** @var Expectation $put */
+        $put = $filesystem->shouldReceive('put');
+        $put->never();
 
         $command = new ScenarioMakeCommand();
-        $command->setLaravel($this->getLaravelMock('/app'));
+        $command->setLaravel($this->getLaravelMock());
 
         $tester = new CommandTester($command);
 
@@ -142,13 +156,16 @@ PHP);
 
     public function testExecuteFailsWhenScenarioAlreadyExists(): void
     {
-        $blueprint = '/app/vendor/scenario/laravel/blueprint/scenario.blueprint';
-        $scenarioFile = '/app/scenario/main/ExistingScenario.php';
-
+        $filesystem = $this->setUpInstalled(true, 2);
+        $this->basePathMock('/app/root');
         $this->commandMocks();
 
-        File::shouldReceive('exists')
-            ->times(2)
+        $blueprint = 'vendor/scenario/laravel/blueprint/scenario.blueprint';
+        $scenarioFile = 'scenario/main/ExistingScenario.php';
+
+        /** @var Expectation $exists */
+        $exists = $filesystem->shouldReceive('exists');
+        $exists->times(2)
             ->andReturnUsing(static function (string $path) use ($blueprint, $scenarioFile): bool {
                 return match ($path) {
                     $blueprint => true,
@@ -156,11 +173,15 @@ PHP);
                     default => false,
                 };
             });
-        File::shouldReceive('get')->never();
-        File::shouldReceive('put')->never();
+        /** @var Expectation $get */
+        $get = $filesystem->shouldReceive('get');
+        $get->never();
+        /** @var Expectation $put */
+        $put = $filesystem->shouldReceive('put');
+        $put->never();
 
         $command = new ScenarioMakeCommand();
-        $command->setLaravel($this->getLaravelMock('/app'));
+        $command->setLaravel($this->getLaravelMock());
 
         $tester = new CommandTester($command);
         $tester->setInputs(['existingScenario']);
@@ -171,24 +192,31 @@ PHP);
 
     public function testExecuteFailsWhenNoSuitesAreConfigured(): void
     {
+        $filesystem = $this->setUpInstalled(true, 2);
+        $this->basePathMock('/app/root');
+        $this->commandMocks();
+
         $configuration = self::createStub(Configuration::class);
         $configuration->method('getSuites')
             ->willReturn([]);
         $this->setScenarioConfiguration($configuration);
 
-        $blueprint = '/app/vendor/scenario/laravel/blueprint/scenario.blueprint';
+        $blueprint = 'vendor/scenario/laravel/blueprint/scenario.blueprint';
 
-        $this->commandMocks();
-
-        File::shouldReceive('exists')
-            ->once()
+        /** @var Expectation $exists */
+        $exists = $filesystem->shouldReceive('exists');
+        $exists->once()
             ->with($blueprint)
             ->andReturn(true);
-        File::shouldReceive('get')->never();
-        File::shouldReceive('put')->never();
+        /** @var Expectation $get */
+        $get = $filesystem->shouldReceive('get');
+        $get->never();
+        /** @var Expectation $put */
+        $put = $filesystem->shouldReceive('put');
+        $put->never();
 
         $command = new ScenarioMakeCommand();
-        $command->setLaravel($this->getLaravelMock('/app'));
+        $command->setLaravel($this->getLaravelMock());
 
         $tester = new CommandTester($command);
 
@@ -198,14 +226,17 @@ PHP);
 
     public function testExecuteRepeatsQuestionUntilScenarioNameIsValid(): void
     {
-        $blueprint = '/app/vendor/scenario/laravel/blueprint/scenario.blueprint';
-        $scenarioFile = '/app/scenario/main/CleanScenario.php';
-        $scenarioExists = false;
-
+        $filesystem = $this->setUpInstalled(true, 2);
+        $this->basePathMock('/app/root');
         $this->commandMocks();
 
-        File::shouldReceive('exists')
-            ->times(3)
+        $blueprint = 'vendor/scenario/laravel/blueprint/scenario.blueprint';
+        $scenarioFile = 'scenario/main/CleanScenario.php';
+        $scenarioExists = false;
+
+        /** @var Expectation $exists */
+        $exists = $filesystem->shouldReceive('exists');
+        $exists->times(3)
             ->andReturnUsing(function (string $path) use ($blueprint, $scenarioFile, &$scenarioExists): bool {
                 return match ($path) {
                     $blueprint => true,
@@ -213,12 +244,14 @@ PHP);
                     default => false,
                 };
             });
-        File::shouldReceive('get')
-            ->once()
+        /** @var Expectation $get */
+        $get = $filesystem->shouldReceive('get');
+        $get->once()
             ->with($blueprint)
             ->andReturn('<?php final class %className% {}');
-        File::shouldReceive('put')
-            ->once()
+        /** @var Expectation $put */
+        $put = $filesystem->shouldReceive('put');
+        $put->once()
             ->with(
                 $scenarioFile,
                 Mockery::on(function (string $content) use (&$scenarioExists): bool {
@@ -229,7 +262,7 @@ PHP);
             );
 
         $command = new ScenarioMakeCommand();
-        $command->setLaravel($this->getLaravelMock('/app'));
+        $command->setLaravel($this->getLaravelMock());
 
         $tester = new CommandTester($command);
         $tester->setInputs(['bad name!', 'cleanScenario']);
@@ -240,6 +273,10 @@ PHP);
 
     public function testExecuteGeneratesScenarioInSelectedSuite(): void
     {
+        $filesystem = $this->setUpInstalled(true, 2);
+        $this->basePathMock('/app/root');
+        $this->commandMocks();
+
         $configuration = new LoadedConfiguration(new DefaultConfiguration());
         $configuration->setSuites([
             'main' => new SuiteValue('main', 'scenario/main'),
@@ -247,14 +284,13 @@ PHP);
         ]);
         $this->setScenarioConfiguration($configuration);
 
-        $blueprint = '/app/vendor/scenario/laravel/blueprint/scenario.blueprint';
-        $scenarioFile = '/app/scenario/admin/user/BackofficeScenario.php';
+        $blueprint = 'vendor/scenario/laravel/blueprint/scenario.blueprint';
+        $scenarioFile = 'scenario/admin/user/BackofficeScenario.php';
         $scenarioExists = false;
 
-        $this->commandMocks();
-
-        File::shouldReceive('exists')
-            ->times(3)
+        /** @var Expectation $exists */
+        $exists = $filesystem->shouldReceive('exists');
+        $exists->times(3)
             ->andReturnUsing(function (string $path) use ($blueprint, $scenarioFile, &$scenarioExists): bool {
                 return match ($path) {
                     $blueprint => true,
@@ -262,12 +298,14 @@ PHP);
                     default => false,
                 };
             });
-        File::shouldReceive('get')
-            ->once()
+        /** @var Expectation $get */
+        $get = $filesystem->shouldReceive('get');
+        $get->once()
             ->with($blueprint)
             ->andReturn('<?php namespace %nameSpace%; final class %className% {}');
-        File::shouldReceive('put')
-            ->once()
+        /** @var Expectation $put */
+        $put = $filesystem->shouldReceive('put');
+        $put->once()
             ->with(
                 $scenarioFile,
                 Mockery::on(function (string $content) use (&$scenarioExists): bool {
@@ -279,7 +317,7 @@ PHP);
             );
 
         $command = new ScenarioMakeCommand();
-        $command->setLaravel($this->getLaravelMock('/app'));
+        $command->setLaravel($this->getLaravelMock());
 
         $tester = new CommandTester($command);
         $tester->setInputs(['admin', 'backofficeScenario']);
@@ -290,13 +328,16 @@ PHP);
 
     public function testExecuteFailsWhenGeneratedScenarioFileCannotBeVerified(): void
     {
-        $blueprint = '/app/vendor/scenario/laravel/blueprint/scenario.blueprint';
-        $scenarioFile = '/app/scenario/main/DemoScenario.php';
-
+        $filesystem = $this->setUpInstalled(true, 2);
+        $this->basePathMock('/app/root');
         $this->commandMocks();
 
-        File::shouldReceive('exists')
-            ->times(3)
+        $blueprint = 'vendor/scenario/laravel/blueprint/scenario.blueprint';
+        $scenarioFile = 'scenario/main/DemoScenario.php';
+
+        /** @var Expectation $exists */
+        $exists = $filesystem->shouldReceive('exists');
+        $exists->times(3)
             ->andReturnUsing(static function (string $path) use ($blueprint, $scenarioFile): bool {
                 return match ($path) {
                     $blueprint => true,
@@ -304,22 +345,41 @@ PHP);
                     default => false,
                 };
             });
-        File::shouldReceive('get')
-            ->once()
+        /** @var Expectation $get */
+        $get = $filesystem->shouldReceive('get');
+        $get->once()
             ->with($blueprint)
             ->andReturn('<?php final class %className% {}');
-        File::shouldReceive('put')
-            ->once()
+        /** @var Expectation $put */
+        $put = $filesystem->shouldReceive('put');
+        $put->once()
             ->with($scenarioFile, Mockery::type('string'));
 
         $command = new ScenarioMakeCommand();
-        $command->setLaravel($this->getLaravelMock('/app'));
+        $command->setLaravel($this->getLaravelMock());
 
         $tester = new CommandTester($command);
         $tester->setInputs(['demoScenario']);
 
         self::assertSame(Command::FAILURE, $tester->execute([]));
         self::assertStringContainsString('Scenario generation failed.', $tester->getDisplay());
+    }
+
+    public function testExecuteCommandReturnsFailureWhenScenarioIsNotInstalled(): void
+    {
+        $this->setUpInstalled(false, 6);
+        $this->basePathMock('/app/root');
+        $this->commandMocks();
+
+        $process = $this->getProcessMock();
+        /** @var Expectation $expectation */
+        $expectation = $process->shouldReceive('run');
+        $expectation->never();
+
+        $command = new ScenarioMakeCommand();
+        $command->setLaravel($this->getLaravelMock());
+
+        self::assertSame(Command::FAILURE, (new CommandTester($command))->execute([]));
     }
 
     private function setScenarioConfiguration(?Configuration $configuration): void
