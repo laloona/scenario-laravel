@@ -25,6 +25,7 @@ use RecursiveIteratorIterator;
 use ReflectionClass;
 use Scenario\Core\Attribute\ApplyScenario;
 use Scenario\Core\Attribute\AsScenario;
+use Scenario\Core\PHPUnit\Finder\ScenarioTestFinder;
 use Scenario\Core\Runtime\Application;
 use Scenario\Core\Runtime\Application\Configuration\DefaultConfiguration;
 use Scenario\Core\Runtime\Application\Configuration\LoadedConfiguration;
@@ -347,6 +348,129 @@ PHP);
         $command->setLaravel($this->getLaravelMock());
 
         $tester = new CommandTester($command);
+
+        self::assertSame(Command::SUCCESS, $tester->execute([]));
+    }
+
+    public function testExecuteCommandRunsDebugForSelectedScenarioWhenScenariosAndUnitTestsExist(): void
+    {
+        $this->setUpInstalled(true, 2);
+        $this->basePathMock('/app/root');
+        $this->commandMocks();
+
+        ScenarioRegistry::getInstance()->register(new ScenarioDefinition(
+            'main',
+            ValidScenario::class,
+            new AsScenario('valid'),
+            [],
+        ));
+
+        $suffix = 'Fixture' . uniqid();
+        $this->writeFixture('ScenarioChoiceTest.php', <<<PHP
+<?php declare(strict_types=1);
+
+namespace Scenario\\Laravel\\Tests\\Fixtures\\{$suffix};
+
+use PHPUnit\\Framework\\TestCase;
+use Scenario\\Core\\Attribute\\ApplyScenario;
+
+final class ScenarioChoiceTest extends TestCase
+{
+    #[ApplyScenario('demo')]
+    public function testDebuggable(): void
+    {
+    }
+}
+PHP);
+
+        $process = $this->getProcessMock();
+        /** @var Expectation $expectation */
+        $expectation = $process->shouldReceive('run');
+        $expectation->once()
+            ->with(
+                [
+                    PHP_BINARY,
+                    'vendor/bin/scenario',
+                    'debug',
+                    ValidScenario::class,
+                    '--force',
+                    '--quiet',
+                ],
+                '/app/root',
+                Mockery::type(OutputStyle::class),
+            )
+            ->andReturn(true);
+
+        $command = new ScenarioDebugCommand();
+        $command->setLaravel($this->getLaravelMock());
+
+        $tester = new CommandTester($command);
+        $tester->setInputs(['Scenario', '0']);
+
+        self::assertSame(Command::SUCCESS, $tester->execute([]));
+    }
+
+    public function testExecuteCommandRunsDebugForSelectedMethodWhenOneTestClassHasMultipleMethods(): void
+    {
+        $this->setUpInstalled(true, 2);
+        $this->basePathMock('/app/root');
+        $this->commandMocks();
+
+        $suffix = 'Fixture' . uniqid();
+        $className = 'Scenario\\Laravel\\Tests\\Fixtures\\' . $suffix . '\\MultipleMethodsScenarioTest';
+
+        $this->writeFixture('MultipleMethodsScenarioTest.php', <<<PHP
+<?php declare(strict_types=1);
+
+namespace Scenario\\Laravel\\Tests\\Fixtures\\{$suffix};
+
+use PHPUnit\\Framework\\TestCase;
+use Scenario\\Core\\Attribute\\ApplyScenario;
+
+final class MultipleMethodsScenarioTest extends TestCase
+{
+    #[ApplyScenario('demo')]
+    public function testFirstDebuggable(): void
+    {
+    }
+
+    #[ApplyScenario('demo')]
+    public function testSecondDebuggable(): void
+    {
+    }
+}
+PHP);
+
+        $classesMethods = (new ScenarioTestFinder())->all();
+
+        self::assertCount(1, $classesMethods);
+        self::assertArrayHasKey($className, $classesMethods);
+        self::assertCount(2, $classesMethods[$className]);
+
+        $process = $this->getProcessMock();
+        /** @var Expectation $expectation */
+        $expectation = $process->shouldReceive('run');
+        $expectation->once()
+            ->with(
+                [
+                    PHP_BINARY,
+                    'vendor/bin/scenario',
+                    'debug',
+                    $className,
+                    'testSecondDebuggable',
+                    '--force',
+                    '--quiet',
+                ],
+                '/app/root',
+                Mockery::type(OutputStyle::class),
+            )
+            ->andReturn(true);
+
+        $command = new ScenarioDebugCommand();
+        $command->setLaravel($this->getLaravelMock());
+
+        $tester = new CommandTester($command);
+        $tester->setInputs(['testSecondDebuggable']);
 
         self::assertSame(Command::SUCCESS, $tester->execute([]));
     }
