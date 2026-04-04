@@ -6,11 +6,9 @@ It focuses on structure, behavior, framework integration, and best practices.
 ---
 
 ## What is a Scenario?
-
 A scenario describes a **reproducible application state**.
 
 In Laravel, a scenario is a PHP class that:
-
 - extends `Stateforge\Scenario\Laravel\Scenario`
 - is marked with `#[AsScenario]`
 - defines how a state is created (`up`) and optionally removed (`down`)
@@ -66,7 +64,7 @@ You can also reference the class directly:
 
 ## Scenario Composition
 Scenarios can apply other scenarios.
-```pho
+```php
 #[ApplyScenario(UserExists::class)]
 #[ApplyScenario(UserHasSubscription::class)]
 final class UserReadyScenario extends Scenario
