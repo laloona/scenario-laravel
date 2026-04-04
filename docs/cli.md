@@ -51,10 +51,10 @@ Please insert value for string parameter "email" (required)
 >
 ```
 - __scenario:debug__: Inspect a scenario or test. Arguments (optional): `class method`<br>
-  Use this to:
-- verify scenario resolution
-- inspect applied scenarios
-- debug execution flow
+Use this to:
+  - verify scenario resolution
+  - inspect applied scenarios
+  - debug execution flow
 - __scenario:make__: Generate a new scenario.
 - __scenario:refresh__: Execute database or environment refresh logic. Available options (optional):
 ```bash
