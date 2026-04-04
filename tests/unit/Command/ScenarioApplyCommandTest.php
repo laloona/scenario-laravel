@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * This file is part of Scenario\Laravel package.
+ * This file is part of Stateforge\Scenario\Laravel package.
  *
  * (c) Christina Koenig <christina.koenig@looriva.de>
  *
@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Scenario\Laravel\Tests\Unit\Command;
+namespace Stateforge\Scenario\Laravel\Tests\Unit\Command;
 
 use Illuminate\Console\Command;
 use Illuminate\Console\OutputStyle;
@@ -21,20 +21,20 @@ use PHPUnit\Framework\Attributes\Medium;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
-use Scenario\Core\Attribute\AsScenario;
-use Scenario\Core\Attribute\Parameter;
-use Scenario\Core\Runtime\Application;
-use Scenario\Core\Runtime\Application\Configuration\Configuration;
-use Scenario\Core\Runtime\Exception\RegistryException;
-use Scenario\Core\Runtime\Metadata\ExecutionType;
-use Scenario\Core\Runtime\Metadata\ParameterType;
-use Scenario\Core\Runtime\ScenarioDefinition;
-use Scenario\Core\Runtime\ScenarioRegistry;
-use Scenario\Laravel\Command\ScenarioApplyCommand;
-use Scenario\Laravel\Command\ScenarioCommand;
-use Scenario\Laravel\Tests\Files\ValidScenario;
-use Scenario\Laravel\Tests\Unit\CommandMock;
-use Scenario\Laravel\Tests\Unit\LaravelMock;
+use Stateforge\Scenario\Core\Attribute\AsScenario;
+use Stateforge\Scenario\Core\Attribute\Parameter;
+use Stateforge\Scenario\Core\Runtime\Application;
+use Stateforge\Scenario\Core\Runtime\Application\Configuration\Configuration;
+use Stateforge\Scenario\Core\Runtime\Exception\RegistryException;
+use Stateforge\Scenario\Core\Runtime\Metadata\ExecutionType;
+use Stateforge\Scenario\Core\Runtime\Metadata\ParameterType;
+use Stateforge\Scenario\Core\Runtime\ScenarioDefinition;
+use Stateforge\Scenario\Core\Runtime\ScenarioRegistry;
+use Stateforge\Scenario\Laravel\Command\ScenarioApplyCommand;
+use Stateforge\Scenario\Laravel\Command\ScenarioCommand;
+use Stateforge\Scenario\Laravel\Tests\Files\ValidScenario;
+use Stateforge\Scenario\Laravel\Tests\Unit\CommandMock;
+use Stateforge\Scenario\Laravel\Tests\Unit\LaravelMock;
 use Symfony\Component\Console\Tester\CommandTester;
 use const PHP_BINARY;
 

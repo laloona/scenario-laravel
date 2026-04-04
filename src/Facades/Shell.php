@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * This file is part of Scenario\Laravel package.
+ * This file is part of Stateforge\Scenario\Laravel package.
  *
  * (c) Christina Koenig <christina.koenig@looriva.de>
  *
@@ -9,11 +9,11 @@
  * file that was distributed with this source code.
  */
 
-namespace Scenario\Laravel\Facades;
+namespace Stateforge\Scenario\Laravel\Facades;
 
 use Illuminate\Console\OutputStyle;
 use Illuminate\Support\Facades\Facade;
-use Scenario\Laravel\Runtime\ProcessInterface;
+use Stateforge\Scenario\Laravel\Runtime\ProcessInterface;
 
 /**
  * @method static bool run(list<string> $arguments, string $directory, ?OutputStyle $output)

@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * This file is part of Scenario\Laravel package.
+ * This file is part of Stateforge\Scenario\Laravel package.
  *
  * (c) Christina Koenig <christina.koenig@looriva.de>
  *
@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Scenario\Laravel\Tests\Unit;
+namespace Stateforge\Scenario\Laravel\Tests\Unit;
 
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Config;

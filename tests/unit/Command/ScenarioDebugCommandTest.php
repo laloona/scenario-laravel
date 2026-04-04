@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * This file is part of Scenario\Laravel package.
+ * This file is part of Stateforge\Scenario\Laravel package.
  *
  * (c) Christina Koenig <christina.koenig@looriva.de>
  *
@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Scenario\Laravel\Tests\Unit\Command;
+namespace Stateforge\Scenario\Laravel\Tests\Unit\Command;
 
 use Illuminate\Console\Command;
 use Illuminate\Console\OutputStyle;
@@ -23,20 +23,20 @@ use PHPUnit\Framework\TestCase;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use ReflectionClass;
-use Scenario\Core\Attribute\ApplyScenario;
-use Scenario\Core\Attribute\AsScenario;
-use Scenario\Core\PHPUnit\Finder\ScenarioTestFinder;
-use Scenario\Core\Runtime\Application;
-use Scenario\Core\Runtime\Application\Configuration\DefaultConfiguration;
-use Scenario\Core\Runtime\Application\Configuration\LoadedConfiguration;
-use Scenario\Core\Runtime\ScenarioDefinition;
-use Scenario\Core\Runtime\ScenarioRegistry;
-use Scenario\Laravel\Command\ScenarioCommand;
-use Scenario\Laravel\Command\ScenarioDebugCommand;
-use Scenario\Laravel\Tests\Files\ValidScenario;
-use Scenario\Laravel\Tests\Unit\CommandMock;
-use Scenario\Laravel\Tests\Unit\LaravelMock;
 use SplFileInfo;
+use Stateforge\Scenario\Core\Attribute\ApplyScenario;
+use Stateforge\Scenario\Core\Attribute\AsScenario;
+use Stateforge\Scenario\Core\PHPUnit\Finder\ScenarioTestFinder;
+use Stateforge\Scenario\Core\Runtime\Application;
+use Stateforge\Scenario\Core\Runtime\Application\Configuration\DefaultConfiguration;
+use Stateforge\Scenario\Core\Runtime\Application\Configuration\LoadedConfiguration;
+use Stateforge\Scenario\Core\Runtime\ScenarioDefinition;
+use Stateforge\Scenario\Core\Runtime\ScenarioRegistry;
+use Stateforge\Scenario\Laravel\Command\ScenarioCommand;
+use Stateforge\Scenario\Laravel\Command\ScenarioDebugCommand;
+use Stateforge\Scenario\Laravel\Tests\Files\ValidScenario;
+use Stateforge\Scenario\Laravel\Tests\Unit\CommandMock;
+use Stateforge\Scenario\Laravel\Tests\Unit\LaravelMock;
 use Symfony\Component\Console\Tester\CommandTester;
 use function file_put_contents;
 use function is_dir;
@@ -158,10 +158,10 @@ XML
         file_put_contents(Application::getRootDir() . '/tests/unit/MethodLevelScenarioTest.php', <<<PHP
 <?php declare(strict_types=1);
 
-namespace Scenario\\Laravel\\Tests\\Fixtures\\{$suffix};
+namespace Stateforge\\Scenario\\Laravel\\Tests\\Fixtures\\{$suffix};
 
 use PHPUnit\\Framework\\TestCase;
-use Scenario\\Core\\Attribute\\ApplyScenario;
+use Stateforge\\Scenario\\Core\\Attribute\\ApplyScenario;
 
 final class MethodLevelScenarioTest extends TestCase
 {
@@ -181,7 +181,7 @@ PHP);
                     PHP_BINARY,
                     'vendor/bin/scenario',
                     'debug',
-                    'Scenario\\Laravel\\Tests\\Fixtures\\' . $suffix . '\\MethodLevelScenarioTest',
+                    'Stateforge\\Scenario\\Laravel\\Tests\\Fixtures\\' . $suffix . '\\MethodLevelScenarioTest',
                     'testDebuggable',
                     '--force',
                     '--quiet',
@@ -236,15 +236,15 @@ PHP);
         ));
 
         $suffix = 'Fixture' . uniqid();
-        $secondClass = 'Scenario\\Laravel\\Tests\\Fixtures\\' . $suffix . '\\SecondScenarioTest';
+        $secondClass = 'Stateforge\\Scenario\\Laravel\\Tests\\Fixtures\\' . $suffix . '\\SecondScenarioTest';
 
         $this->writeFixture('FirstScenarioTest.php', <<<PHP
 <?php declare(strict_types=1);
 
-namespace Scenario\\Laravel\\Tests\\Fixtures\\{$suffix};
+namespace Stateforge\\Scenario\\Laravel\\Tests\\Fixtures\\{$suffix};
 
 use PHPUnit\\Framework\\TestCase;
-use Scenario\\Core\\Attribute\\ApplyScenario;
+use Stateforge\\Scenario\\Core\\Attribute\\ApplyScenario;
 
 final class FirstScenarioTest extends TestCase
 {
@@ -258,10 +258,10 @@ PHP);
         $this->writeFixture('SecondScenarioTest.php', <<<PHP
 <?php declare(strict_types=1);
 
-namespace Scenario\\Laravel\\Tests\\Fixtures\\{$suffix};
+namespace Stateforge\\Scenario\\Laravel\\Tests\\Fixtures\\{$suffix};
 
 use PHPUnit\\Framework\\TestCase;
-use Scenario\\Core\\Attribute\\ApplyScenario;
+use Stateforge\\Scenario\\Core\\Attribute\\ApplyScenario;
 
 final class SecondScenarioTest extends TestCase
 {
@@ -307,15 +307,15 @@ PHP);
         $this->commandMocks();
 
         $suffix = 'Fixture' . uniqid();
-        $className = 'Scenario\\Laravel\\Tests\\Fixtures\\' . $suffix . '\\ClassLevelScenarioTest';
+        $className = 'Stateforge\\Scenario\\Laravel\\Tests\\Fixtures\\' . $suffix . '\\ClassLevelScenarioTest';
 
         $this->writeFixture('ClassLevelScenarioTest.php', <<<PHP
 <?php declare(strict_types=1);
 
-namespace Scenario\\Laravel\\Tests\\Fixtures\\{$suffix};
+namespace Stateforge\\Scenario\\Laravel\\Tests\\Fixtures\\{$suffix};
 
 use PHPUnit\\Framework\\TestCase;
-use Scenario\\Core\\Attribute\\ApplyScenario;
+use Stateforge\\Scenario\\Core\\Attribute\\ApplyScenario;
 
 #[ApplyScenario('demo')]
 final class ClassLevelScenarioTest extends TestCase
@@ -369,10 +369,10 @@ PHP);
         $this->writeFixture('ScenarioChoiceTest.php', <<<PHP
 <?php declare(strict_types=1);
 
-namespace Scenario\\Laravel\\Tests\\Fixtures\\{$suffix};
+namespace Stateforge\\Scenario\\Laravel\\Tests\\Fixtures\\{$suffix};
 
 use PHPUnit\\Framework\\TestCase;
-use Scenario\\Core\\Attribute\\ApplyScenario;
+use Stateforge\\Scenario\\Core\\Attribute\\ApplyScenario;
 
 final class ScenarioChoiceTest extends TestCase
 {
@@ -417,15 +417,15 @@ PHP);
         $this->commandMocks();
 
         $suffix = 'Fixture' . uniqid();
-        $className = 'Scenario\\Laravel\\Tests\\Fixtures\\' . $suffix . '\\MultipleMethodsScenarioTest';
+        $className = 'Stateforge\\Scenario\\Laravel\\Tests\\Fixtures\\' . $suffix . '\\MultipleMethodsScenarioTest';
 
         $this->writeFixture('MultipleMethodsScenarioTest.php', <<<PHP
 <?php declare(strict_types=1);
 
-namespace Scenario\\Laravel\\Tests\\Fixtures\\{$suffix};
+namespace Stateforge\\Scenario\\Laravel\\Tests\\Fixtures\\{$suffix};
 
 use PHPUnit\\Framework\\TestCase;
-use Scenario\\Core\\Attribute\\ApplyScenario;
+use Stateforge\\Scenario\\Core\\Attribute\\ApplyScenario;
 
 final class MultipleMethodsScenarioTest extends TestCase
 {

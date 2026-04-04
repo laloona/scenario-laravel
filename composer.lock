@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "97f8916644399aa173d7a8f0e682084f",
+    "content-hash": "fda5c246973432e7ba669e6de7cccff1",
     "packages": [
         {
             "name": "brick/math",
@@ -3786,65 +3786,6 @@
             "time": "2025-12-14T04:43:48+00:00"
         },
         {
-            "name": "scenario/core",
-            "version": "dev-main",
-            "source": {
-                "type": "git",
-                "url": "git@github.com:laloona/scenario-core.git",
-                "reference": "0639ee7b67ace56e79af9799da3eea627ebca3c4"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/laloona/scenario-core/zipball/0639ee7b67ace56e79af9799da3eea627ebca3c4",
-                "reference": "0639ee7b67ace56e79af9799da3eea627ebca3c4",
-                "shasum": ""
-            },
-            "require": {
-                "ext-dom": "*",
-                "php": ">=8.2",
-                "phpunit/phpunit": "^11.0"
-            },
-            "require-dev": {
-                "friendsofphp/php-cs-fixer": "^3.60",
-                "phpstan/phpstan": "^2.1",
-                "phpstan/phpstan-strict-rules": "^2.0"
-            },
-            "default-branch": true,
-            "bin": [
-                "bin/scenario"
-            ],
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Scenario\\Core\\": "src/"
-                }
-            },
-            "autoload-dev": {
-                "psr-4": {
-                    "Scenario\\Core\\Tests\\Unit\\": "tests/unit/"
-                },
-                "classmap": [
-                    "tests/files"
-                ]
-            },
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "Christina Koenig",
-                    "email": "christina.koenig@looriva.de",
-                    "role": "lead"
-                }
-            ],
-            "description": "Core library for declarative, attribute-driven scenario orchestration for reproducible test data states in PHP.",
-            "support": {
-                "source": "https://github.com/laloona/scenario-core/tree/main",
-                "issues": "https://github.com/laloona/scenario-core/issues"
-            },
-            "time": "2026-04-03T17:24:37+00:00"
-        },
-        {
             "name": "sebastian/cli-parser",
             "version": "3.0.2",
             "source": {
@@ -4881,6 +4822,58 @@
                 }
             ],
             "time": "2024-10-20T05:08:20+00:00"
+        },
+        {
+            "name": "stateforge/scenario-core",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/laloona/scenario-core.git",
+                "reference": "11b582818904fb2f6f4dc77871bfb87748749dfc"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/laloona/scenario-core/zipball/11b582818904fb2f6f4dc77871bfb87748749dfc",
+                "reference": "11b582818904fb2f6f4dc77871bfb87748749dfc",
+                "shasum": ""
+            },
+            "require": {
+                "ext-dom": "*",
+                "php": ">=8.2",
+                "phpunit/phpunit": "^11.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.60",
+                "phpstan/phpstan": "^2.1",
+                "phpstan/phpstan-strict-rules": "^2.0"
+            },
+            "default-branch": true,
+            "bin": [
+                "bin/scenario"
+            ],
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Stateforge\\Scenario\\Core\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Christina Koenig",
+                    "email": "christina.koenig@looriva.de",
+                    "role": "lead"
+                }
+            ],
+            "description": "Core library for declarative, attribute-driven scenario orchestration for reproducible test data states in PHP.",
+            "support": {
+                "issues": "https://github.com/laloona/scenario-core/issues",
+                "source": "https://github.com/laloona/scenario-core/tree/main"
+            },
+            "time": "2026-04-04T09:31:39+00:00"
         },
         {
             "name": "symfony/clock",
@@ -9192,7 +9185,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "scenario/core": 20
+        "stateforge/scenario-core": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,

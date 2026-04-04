@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * This file is part of Scenario\Laravel package.
+ * This file is part of Stateforge\Scenario\Laravel package.
  *
  * (c) Christina Koenig <christina.koenig@looriva.de>
  *
@@ -9,15 +9,15 @@
  * file that was distributed with this source code.
  */
 
-namespace Scenario\Laravel\Runtime;
+namespace Stateforge\Scenario\Laravel\Runtime;
 
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Foundation\Application as IlluminateApplication;
 use Illuminate\Support\Facades\App;
-use Scenario\Core\Runtime\Application as CoreApplication;
-use Scenario\Core\Runtime\Metadata\Handler\ApplyScenarioHandler;
-use Scenario\Core\Runtime\Metadata\Handler\RefreshDatabaseHandler;
-use Scenario\Core\Runtime\Metadata\HandlerRegistry;
+use Stateforge\Scenario\Core\Runtime\Application as CoreApplication;
+use Stateforge\Scenario\Core\Runtime\Metadata\Handler\ApplyScenarioHandler;
+use Stateforge\Scenario\Core\Runtime\Metadata\Handler\RefreshDatabaseHandler;
+use Stateforge\Scenario\Core\Runtime\Metadata\HandlerRegistry;
 use function define;
 use function defined;
 use const DIRECTORY_SEPARATOR;
@@ -45,8 +45,8 @@ final class Application
         /** @var DatabaseRefreshExecutor $refreshExecutor */
         $refreshExecutor = App::make(DatabaseRefreshExecutor::class);
 
-        /** @var ScenarioBuilder $scenarioBuilder */
-        $scenarioBuilder = App::make(ScenarioBuilder::class);
+        /** @var StateBuilder $scenarioBuilder */
+        $scenarioBuilder = App::make(StateBuilder::class);
 
         HandlerRegistry::getInstance()->registerHandler(new RefreshDatabaseHandler($refreshExecutor));
         HandlerRegistry::getInstance()->registerHandler(new ApplyScenarioHandler($scenarioBuilder));

@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * This file is part of Scenario\Laravel package.
+ * This file is part of Stateforge\Scenario\Laravel package.
  *
  * (c) Christina Koenig <christina.koenig@looriva.de>
  *
@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Scenario\Laravel;
+namespace Stateforge\Scenario\Laravel;
 
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\App;
@@ -17,9 +17,9 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Event;
-use Scenario\Core\Scenario as CoreScenario;
-use Scenario\Laravel\Facades\Consumer;
-use Scenario\Laravel\Facades\Shell;
+use Stateforge\Scenario\Core\Scenario as CoreScenario;
+use Stateforge\Scenario\Laravel\Facades\Consumer;
+use Stateforge\Scenario\Laravel\Facades\Shell;
 use function basename;
 use function dirname;
 use function file_exists;

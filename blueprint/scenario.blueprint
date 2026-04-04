@@ -1,9 +1,9 @@
 <?php declare(strict_types=1);
 
-namespace %nameSpace%;
+namespace Stateforge\Suite\%nameSpace%;
 
-use Scenario\Core\Attribute\AsScenario;
-use Scenario\Laravel\Scenario;
+use Stateforge\Scenario\Core\Attribute\AsScenario;
+use Stateforge\Scenario\Laravel\Scenario;
 
 #[AsScenario(
     name:'some usefull name should be chosen',

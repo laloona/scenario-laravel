@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * This file is part of Scenario\Laravel package.
+ * This file is part of Stateforge\Scenario\Laravel package.
  *
  * (c) Christina Koenig <christina.koenig@looriva.de>
  *
@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Scenario\Laravel\Tests\Unit;
+namespace Stateforge\Scenario\Laravel\Tests\Unit;
 
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\App;
@@ -23,11 +23,11 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
-use Scenario\Laravel\Facades\Consumer;
-use Scenario\Laravel\Facades\Shell;
-use Scenario\Laravel\Scenario;
-use Scenario\Laravel\Tests\Files\DbModel;
-use Scenario\Laravel\Tests\Files\ValidScenario;
+use Stateforge\Scenario\Laravel\Facades\Consumer;
+use Stateforge\Scenario\Laravel\Facades\Shell;
+use Stateforge\Scenario\Laravel\Scenario;
+use Stateforge\Scenario\Laravel\Tests\Files\DbModel;
+use Stateforge\Scenario\Laravel\Tests\Files\ValidScenario;
 use stdClass;
 use function file_exists;
 use function is_dir;

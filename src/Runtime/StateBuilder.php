@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * This file is part of Scenario\Laravel package.
+ * This file is part of Stateforge\Scenario\Laravel package.
  *
  * (c) Christina Koenig <christina.koenig@looriva.de>
  *
@@ -9,19 +9,19 @@
  * file that was distributed with this source code.
  */
 
-namespace Scenario\Laravel\Runtime;
+namespace Stateforge\Scenario\Laravel\Runtime;
 
 use Illuminate\Support\Facades\App;
-use Scenario\Core\Contract\ScenarioBuilderInterface;
-use Scenario\Core\Contract\ScenarioInterface;
-use Scenario\Laravel\Runtime\Exception\ScenarioUnknownException;
-use Scenario\Laravel\Runtime\Exception\WrongScenarioSubclassException;
-use Scenario\Laravel\Scenario;
+use Stateforge\Scenario\Core\Contract\ScenarioBuilderInterface;
+use Stateforge\Scenario\Core\Contract\ScenarioInterface;
+use Stateforge\Scenario\Laravel\Runtime\Exception\ScenarioUnknownException;
+use Stateforge\Scenario\Laravel\Runtime\Exception\WrongScenarioSubclassException;
+use Stateforge\Scenario\Laravel\Scenario;
 use Throwable;
 use function is_object;
 use function is_subclass_of;
 
-final class ScenarioBuilder implements ScenarioBuilderInterface
+final class StateBuilder implements ScenarioBuilderInterface
 {
     public function build(string $scenarioClass): ScenarioInterface
     {

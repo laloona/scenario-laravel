@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * This file is part of Scenario\Laravel package.
+ * This file is part of Stateforge\Scenario\Laravel package.
  *
  * (c) Christina Koenig <christina.koenig@looriva.de>
  *
@@ -9,12 +9,12 @@
  * file that was distributed with this source code.
  */
 
-namespace Scenario\Laravel\Runtime;
+namespace Stateforge\Scenario\Laravel\Runtime;
 
 use Illuminate\Support\Facades\Artisan;
-use Scenario\Core\Attribute\RefreshDatabase;
-use Scenario\Core\Contract\DatabaseRefreshExecutorInterface;
-use Scenario\Core\Runtime\Application;
+use Stateforge\Scenario\Core\Attribute\RefreshDatabase;
+use Stateforge\Scenario\Core\Contract\DatabaseRefreshExecutorInterface;
+use Stateforge\Scenario\Core\Runtime\Application;
 
 final class DatabaseRefreshExecutor implements DatabaseRefreshExecutorInterface
 {

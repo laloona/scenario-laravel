@@ -1,5 +1,5 @@
 <scenario xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:noNamespaceSchemaLocation="vendor/scenario/core/xsd/scenario.xsd"
+    xsi:noNamespaceSchemaLocation="vendor/stateforge/scenario-core/xsd/scenario.xsd"
     bootstrap="scenario/bootstrap.php"
     cacheDirectory=".scenario.cache"
 >

@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * This file is part of Scenario\Laravel package.
+ * This file is part of Stateforge\Scenario\Laravel package.
  *
  * (c) Christina Koenig <christina.koenig@looriva.de>
  *
@@ -13,16 +13,16 @@ namespace Scenario\Laravel;
 
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
-use Scenario\Core\PHPUnit\Configuration\Configured;
-use Scenario\Core\PHPUnit\Configuration\ConfiguredInterface;
-use Scenario\Laravel\Command\ScenarioApplyCommand;
-use Scenario\Laravel\Command\ScenarioDebugCommand;
-use Scenario\Laravel\Command\ScenarioInstallCommand;
-use Scenario\Laravel\Command\ScenarioListCommand;
-use Scenario\Laravel\Command\ScenarioMakeCommand;
-use Scenario\Laravel\Runtime\Consumer;
-use Scenario\Laravel\Runtime\ProcessInterface;
-use Scenario\Laravel\Runtime\ProcessRunner;
+use Stateforge\Scenario\Core\PHPUnit\Configuration\Configured;
+use Stateforge\Scenario\Core\PHPUnit\Configuration\ConfiguredInterface;
+use Stateforge\Scenario\Laravel\Command\ScenarioApplyCommand;
+use Stateforge\Scenario\Laravel\Command\ScenarioDebugCommand;
+use Stateforge\Scenario\Laravel\Command\ScenarioInstallCommand;
+use Stateforge\Scenario\Laravel\Command\ScenarioListCommand;
+use Stateforge\Scenario\Laravel\Command\ScenarioMakeCommand;
+use Stateforge\Scenario\Laravel\Runtime\Consumer;
+use Stateforge\Scenario\Laravel\Runtime\ProcessInterface;
+use Stateforge\Scenario\Laravel\Runtime\ProcessRunner;
 use function config_path;
 use const DIRECTORY_SEPARATOR;
 

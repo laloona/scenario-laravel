@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * This file is part of Scenario\Laravel package.
+ * This file is part of Stateforge\Scenario\Laravel package.
  *
  * (c) Christina Koenig <christina.koenig@looriva.de>
  *
@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Scenario\Laravel\Tests\Unit\Command;
+namespace Stateforge\Scenario\Laravel\Tests\Unit\Command;
 
 use Illuminate\Console\Command;
 use Mockery;
@@ -20,15 +20,15 @@ use PHPUnit\Framework\Attributes\Medium;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
-use Scenario\Core\Runtime\Application;
-use Scenario\Core\Runtime\Application\Configuration\Configuration;
-use Scenario\Core\Runtime\Application\Configuration\DefaultConfiguration;
-use Scenario\Core\Runtime\Application\Configuration\LoadedConfiguration;
-use Scenario\Core\Runtime\Application\Configuration\Value\SuiteValue;
-use Scenario\Laravel\Command\ScenarioCommand;
-use Scenario\Laravel\Command\ScenarioMakeCommand;
-use Scenario\Laravel\Tests\Unit\CommandMock;
-use Scenario\Laravel\Tests\Unit\LaravelMock;
+use Stateforge\Scenario\Core\Runtime\Application;
+use Stateforge\Scenario\Core\Runtime\Application\Configuration\Configuration;
+use Stateforge\Scenario\Core\Runtime\Application\Configuration\DefaultConfiguration;
+use Stateforge\Scenario\Core\Runtime\Application\Configuration\LoadedConfiguration;
+use Stateforge\Scenario\Core\Runtime\Application\Configuration\Value\SuiteValue;
+use Stateforge\Scenario\Laravel\Command\ScenarioCommand;
+use Stateforge\Scenario\Laravel\Command\ScenarioMakeCommand;
+use Stateforge\Scenario\Laravel\Tests\Unit\CommandMock;
+use Stateforge\Scenario\Laravel\Tests\Unit\LaravelMock;
 use Symfony\Component\Console\Tester\CommandTester;
 
 #[CoversClass(ScenarioMakeCommand::class)]
@@ -76,7 +76,7 @@ final class ScenarioMakeCommandTest extends TestCase
         $this->basePathMock('/app/root');
         $this->commandMocks();
 
-        $blueprint = 'vendor/scenario/laravel/blueprint/scenario.blueprint';
+        $blueprint = 'vendor/stateforge/scenario-laravel/blueprint/scenario.blueprint';
         $scenarioFile = 'scenario/main/DemoScenario.php';
         $scenarioExists = false;
 
@@ -97,7 +97,7 @@ final class ScenarioMakeCommandTest extends TestCase
             ->andReturn(<<<'PHP'
 <?php
 
-namespace %nameSpace%;
+namespace Stateforge\Suite\%nameSpace%;
 
 final class %className%
 {
@@ -110,7 +110,7 @@ PHP);
                 $scenarioFile,
                 Mockery::on(function (string $content) use (&$scenarioExists): bool {
                     $scenarioExists = true;
-                    self::assertStringContainsString('namespace Scenario\\Main;', $content);
+                    self::assertStringContainsString('namespace Stateforge\\Suite\\Scenario\\Main;', $content);
                     self::assertStringContainsString('final class DemoScenario', $content);
                     return true;
                 }),
@@ -132,7 +132,7 @@ PHP);
         $this->basePathMock('/app/root');
         $this->commandMocks();
 
-        $blueprint = 'vendor/scenario/laravel/blueprint/scenario.blueprint';
+        $blueprint = 'vendor/stateforge/scenario-laravel/blueprint/scenario.blueprint';
 
         /** @var Expectation $exists */
         $exists = $filesystem->shouldReceive('exists');
@@ -161,7 +161,7 @@ PHP);
         $this->basePathMock('/app/root');
         $this->commandMocks();
 
-        $blueprint = 'vendor/scenario/laravel/blueprint/scenario.blueprint';
+        $blueprint = 'vendor/stateforge/scenario-laravel/blueprint/scenario.blueprint';
         $scenarioFile = 'scenario/main/ExistingScenario.php';
 
         /** @var Expectation $exists */
@@ -202,7 +202,7 @@ PHP);
             ->willReturn([]);
         $this->setScenarioConfiguration($configuration);
 
-        $blueprint = 'vendor/scenario/laravel/blueprint/scenario.blueprint';
+        $blueprint = 'vendor/stateforge/scenario-laravel/blueprint/scenario.blueprint';
 
         /** @var Expectation $exists */
         $exists = $filesystem->shouldReceive('exists');
@@ -231,7 +231,7 @@ PHP);
         $this->basePathMock('/app/root');
         $this->commandMocks();
 
-        $blueprint = 'vendor/scenario/laravel/blueprint/scenario.blueprint';
+        $blueprint = 'vendor/stateforge/scenario-laravel/blueprint/scenario.blueprint';
         $scenarioFile = 'scenario/main/CleanScenario.php';
         $scenarioExists = false;
 
@@ -285,7 +285,7 @@ PHP);
         ]);
         $this->setScenarioConfiguration($configuration);
 
-        $blueprint = 'vendor/scenario/laravel/blueprint/scenario.blueprint';
+        $blueprint = 'vendor/stateforge/scenario-laravel/blueprint/scenario.blueprint';
         $scenarioFile = 'scenario/admin/user/BackofficeScenario.php';
         $scenarioExists = false;
 
@@ -303,7 +303,7 @@ PHP);
         $get = $filesystem->shouldReceive('get');
         $get->once()
             ->with($blueprint)
-            ->andReturn('<?php namespace %nameSpace%; final class %className% {}');
+            ->andReturn('<?php namespace Stateforge\\Suite\\%nameSpace%; final class %className% {}');
         /** @var Expectation $put */
         $put = $filesystem->shouldReceive('put');
         $put->once()
@@ -311,7 +311,7 @@ PHP);
                 $scenarioFile,
                 Mockery::on(function (string $content) use (&$scenarioExists): bool {
                     $scenarioExists = true;
-                    self::assertStringContainsString('namespace Scenario\\Admin\\User;', $content);
+                    self::assertStringContainsString('namespace Stateforge\\Suite\\Scenario\\Admin\\User;', $content);
                     self::assertStringContainsString('final class BackofficeScenario', $content);
                     return true;
                 }),
@@ -333,7 +333,7 @@ PHP);
         $this->basePathMock('/app/root');
         $this->commandMocks();
 
-        $blueprint = 'vendor/scenario/laravel/blueprint/scenario.blueprint';
+        $blueprint = 'vendor/stateforge/scenario-laravel/blueprint/scenario.blueprint';
         $scenarioFile = 'scenario/main/DemoScenario.php';
 
         /** @var Expectation $exists */
@@ -350,7 +350,7 @@ PHP);
         $get = $filesystem->shouldReceive('get');
         $get->once()
             ->with($blueprint)
-            ->andReturn('<?php final class %className% {}');
+            ->andReturn('<?php final class Stateforge\\Suite\\%className% {}');
         /** @var Expectation $put */
         $put = $filesystem->shouldReceive('put');
         $put->once()

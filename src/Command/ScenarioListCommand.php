@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * This file is part of Scenario\Laravel package.
+ * This file is part of Stateforge\Scenario\Laravel package.
  *
  * (c) Christina Koenig <christina.koenig@looriva.de>
  *
@@ -9,10 +9,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Scenario\Laravel\Command;
+namespace Stateforge\Scenario\Laravel\Command;
 
 use Illuminate\Support\Facades\App;
-use Scenario\Laravel\Facades\Shell;
+use Stateforge\Scenario\Laravel\Facades\Shell;
 use function is_string;
 use const PHP_BINARY;
 

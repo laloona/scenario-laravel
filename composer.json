@@ -1,7 +1,7 @@
 {
-  "name": "scenario/laravel",
-  "description": "Laravel adapter for Scenario Core – declarative, attribute-driven scenario execution for reproducible application state.",
-  "type": "symfony-bundle",
+  "name": "stateforge/scenario-laravel",
+  "description": "Laravel adapter for Stateforge Scenario Core – declarative, attribute-driven scenario execution for reproducible application state.",
+  "type": "library",
   "license": "BSD-3-Clause",
   "authors": [
     {
@@ -12,18 +12,18 @@
   ],
   "require": {
     "php": ">=8.2",
-    "scenario/core": "dev-main",
+    "stateforge/scenario-core": "dev-main",
     "laravel/framework": "^12.0",
     "symfony/process": "^7.0"
   },
   "autoload": {
     "psr-4": {
-      "Scenario\\Laravel\\": "src/"
+      "Stateforge\\Scenario\\Laravel\\": "src/"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "Scenario\\Laravel\\Tests\\Unit\\": "tests/unit/"
+      "Stateforge\\Scenario\\Laravel\\Tests\\Unit\\": "tests/unit/"
     },
     "classmap": [
       "tests/files"
@@ -39,14 +39,8 @@
   "extra": {
     "laravel": {
       "providers": [
-        "Scenario\\Laravel\\ScenarioLaravelServiceProvider"
+        "Stateforge\\Scenario\\Laravel\\ScenarioLaravelServiceProvider"
       ]
     }
-  },
-  "repositories": [
-    {
-      "type": "vcs",
-      "url": "git@github.com:laloona/scenario-core.git"
-    }
-  ]
+  }
 }

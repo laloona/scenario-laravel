@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * This file is part of Scenario\Laravel package.
+ * This file is part of Stateforge\Scenario\Laravel package.
  *
  * (c) Christina Koenig <christina.koenig@looriva.de>
  *
@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Scenario\Laravel\Tests\Unit\Command;
+namespace Stateforge\Scenario\Laravel\Tests\Unit\Command;
 
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
@@ -22,15 +22,15 @@ use PHPUnit\Framework\Attributes\Medium;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
-use Scenario\Core\PHPUnit\Configuration\ConfiguredInterface;
-use Scenario\Core\Runtime\Application;
-use Scenario\Core\Runtime\Application\Configuration\Configuration;
-use Scenario\Core\Runtime\Application\Configuration\DefaultConfiguration;
-use Scenario\Core\Runtime\Application\Configuration\LoadedConfiguration;
-use Scenario\Laravel\Command\ScenarioCommand;
-use Scenario\Laravel\Command\ScenarioInstallCommand;
-use Scenario\Laravel\Tests\Unit\CommandMock;
-use Scenario\Laravel\Tests\Unit\LaravelMock;
+use Stateforge\Scenario\Core\PHPUnit\Configuration\ConfiguredInterface;
+use Stateforge\Scenario\Core\Runtime\Application;
+use Stateforge\Scenario\Core\Runtime\Application\Configuration\Configuration;
+use Stateforge\Scenario\Core\Runtime\Application\Configuration\DefaultConfiguration;
+use Stateforge\Scenario\Core\Runtime\Application\Configuration\LoadedConfiguration;
+use Stateforge\Scenario\Laravel\Command\ScenarioCommand;
+use Stateforge\Scenario\Laravel\Command\ScenarioInstallCommand;
+use Stateforge\Scenario\Laravel\Tests\Unit\CommandMock;
+use Stateforge\Scenario\Laravel\Tests\Unit\LaravelMock;
 use Symfony\Component\Console\Tester\CommandTester;
 use const PHP_BINARY;
 
@@ -215,8 +215,8 @@ final class ScenarioInstallCommandTest extends TestCase
         $this->basePathMock('/app');
         $this->commandMocks();
 
-        $bootstrapBlueprint = 'vendor/scenario/laravel/blueprint/bootstrap.blueprint';
-        $configBlueprint = 'vendor/scenario/laravel/blueprint/config.blueprint';
+        $bootstrapBlueprint = 'vendor/stateforge/scenario-laravel/blueprint/bootstrap.blueprint';
+        $configBlueprint = 'vendor/stateforge/scenario-laravel/blueprint/config.blueprint';
         $bootstrapTarget = 'scenario/bootstrap.php';
         $configTarget = 'scenario.dist.xml';
 

@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * This file is part of Scenario\Laravel package.
+ * This file is part of Stateforge\Scenario\Laravel package.
  *
  * (c) Christina Koenig <christina.koenig@looriva.de>
  *
@@ -9,13 +9,13 @@
  * file that was distributed with this source code.
  */
 
-namespace Scenario\Laravel\Tests\Unit\Runtime\Exception;
+namespace Stateforge\Scenario\Laravel\Tests\Unit\Runtime\Exception;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
-use Scenario\Laravel\Runtime\Exception\WrongScenarioSubclassException;
+use Stateforge\Scenario\Laravel\Runtime\Exception\WrongScenarioSubclassException;
 
 #[CoversClass(WrongScenarioSubclassException::class)]
 #[Group('runtime')]
@@ -29,7 +29,7 @@ final class WrongScenarioSubclassExceptionTest extends TestCase
         );
 
         self::assertSame(
-            'WrongExtendedScenario is not from type Scenario\Laravel\Scenario',
+            'WrongExtendedScenario is not from type Stateforge\Scenario\Laravel\Scenario',
             $exception->getMessage(),
         );
     }

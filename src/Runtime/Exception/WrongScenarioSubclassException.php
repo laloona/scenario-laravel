@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
 /*
- * This file is part of Scenario\Laravel package.
+ * This file is part of Stateforge\Scenario\Laravel package.
  *
  * (c) Christina Koenig <christina.koenig@looriva.de>
  *
@@ -9,10 +9,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Scenario\Laravel\Runtime\Exception;
+namespace Stateforge\Scenario\Laravel\Runtime\Exception;
 
-use Scenario\Core\Runtime\Exception\Exception;
-use Scenario\Laravel\Scenario;
+use Stateforge\Scenario\Core\Runtime\Exception\Exception;
+use Stateforge\Scenario\Laravel\Scenario;
 use function sprintf;
 
 final class WrongScenarioSubclassException extends Exception
