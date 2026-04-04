@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Scenario\Laravel;
+namespace Stateforge\Scenario\Laravel;
 
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
