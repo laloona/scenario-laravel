@@ -1,5 +1,4 @@
 # Scenario Laravel
-
 Laravel integration for Stateforge Scenario Core.
 
 This package provides framework-specific integration for Laravel applications,
@@ -9,7 +8,6 @@ It builds on top of ``stateforge/scenario-core`` and integrates with the Laravel
 Artisan console, and testing environment.
 
 ## Requirements
-
 Scenario Laravel requires the following:
 
 * PHP >= 8.2
@@ -20,38 +18,35 @@ Scenario Laravel requires the following:
 
 > This package is intended for local, develop and testing use only.
 
-<pre><code>
+```bash
 composer require --dev stateforge/scenario-laravel
-</code></pre>
+```
 
 After installation, run the setup command:
-
-<pre><code>
+```bash
 php artisan scenario:install
-</code></pre>
+```
 
 The installation command generates the required configuration files:
-* creates ``scenario/bootstrap.php`` for runtime bootstrapping
-* generates ``scenario.dist.xml`` for configuration
-* places the extension into ``phpunit.xml`` or ``phpunit.dist.xml``
+- creates ``scenario/bootstrap.php`` for runtime bootstrapping
+- generates ``scenario.dist.xml`` for configuration
+- places the extension into ``phpunit.xml`` or ``phpunit.dist.xml``
 
 ## What This Package Provides
-
 Scenario Laravel integrates Scenario Core with:
-
-* Laravel’s service container
-* Laravel Artisan console
-* Laravel application lifecycle
-* PHPUnit integration
+- Laravel’s service container
+- Laravel Artisan console
+- Laravel application lifecycle
+- PHPUnit integration
 
 ## Service Provider
 
 The package automatically registers its service provider.
 
 It handles:
-* registering console commands
-* wiring scenario services
-* integrating the Scenario runtime with Laravel
+- registering console commands
+- wiring scenario services
+- integrating the Scenario runtime with Laravel
 
 ## Database Reset
 
@@ -59,14 +54,14 @@ When using ``#[RefreshDatabase]``, the Laravel integration resets the database
 using Laravel’s migration system.
 
 The default behavior:
-* runs ``migrate:fresh``
-* optionally supports connection-specific resets
+- runs ``migrate:fresh``
+- optionally supports connection-specific resets
 
 ## Applying Scenarios in Unit Tests
 
 Scenarios can be applied declaratively using the ```#[ApplyScenario]``` attribute:
 
-<pre><code type="php">&lt;?php
+```php
 use Stateforge\Scenario\Core\Attribute\ApplyScenario;
 
 #[ApplyScenario('my-scenario')]
@@ -78,37 +73,43 @@ final class MyTest extends TestCase
         // scenario has already been applied, data can be tested
     }
 }
-</code></pre>
+```
 
 ## Console Commands
-
 Scenario Laravel registers dedicated Artisan commands within your application.
 
 You can discover them using:
 
-<pre><code>
+```bash
 php artisan list scenario
-</code></pre>
+```
 
 Available commands include:
 
-* ``scenario:list`` – List available scenarios
-* ``scenario:apply`` – Apply a scenario manually
-* ``scenario:debug`` – Debug scenarios or unit tests
-* ``scenario:make`` – Generate a new scenario
-* ``scenario:install`` – Install Scenario into the project
+- `scenario:list` – List available scenarios
+- `scenario:apply` – Apply a scenario manually
+- `scenario:debug` – Debug scenarios or unit tests
+- `scenario:make` – Generate a new scenario
+- `scenario:install` – Install Scenario into the project
 
 ## Environment Restrictions
-
 Scenario commands are intended for local, development and testing environments only.
 
 By default, they are restricted to:
-
-* ``local``
-* ``develop``
-* ``testing``
+- `local`
+- `develop`
+- `testing`
 
 This can be configured via:
 
 ```php
 config('scenario.allowed_envs');
+```
+
+## Next Steps
+
+- [Getting Started](docs/getting-started.md)
+- [Scenarios](docs/scenarios.md)
+- [CLI Usage](docs/cli.md)
+- [Testing with PHPUnit](docs/testing-with-phpunit.md)
+- [Recipes](docs/recipes.md)
