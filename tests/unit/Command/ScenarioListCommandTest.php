@@ -132,7 +132,7 @@ final class ScenarioListCommandTest extends TestCase
             ->with(
                 [
                     PHP_BINARY,
-                    'vendor/bin/scenario',
+                    'vendor' . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'scenario',
                     'list',
                     '--force',
                     '--quiet',
@@ -164,7 +164,7 @@ final class ScenarioListCommandTest extends TestCase
             ->with(
                 [
                     PHP_BINARY,
-                    'vendor/bin/scenario',
+                    'vendor' . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'scenario',
                     'list',
                     '--force',
                     '--quiet',

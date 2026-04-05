@@ -144,7 +144,7 @@ final class ScenarioApplyCommandTest extends TestCase
             ->with(
                 [
                     PHP_BINARY,
-                    'vendor/bin/scenario',
+                    'vendor' . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'scenario',
                     'apply',
                     ValidScenario::class,
                     '--down',
@@ -194,7 +194,7 @@ final class ScenarioApplyCommandTest extends TestCase
             ->with(
                 [
                     PHP_BINARY,
-                    'vendor/bin/scenario',
+                    'vendor' . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'scenario',
                     'apply',
                     ValidScenario::class,
                     '--down',
@@ -243,7 +243,7 @@ final class ScenarioApplyCommandTest extends TestCase
             ->with(
                 [
                     PHP_BINARY,
-                    'vendor/bin/scenario',
+                    'vendor' . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'scenario',
                     'apply',
                     ValidScenario::class,
                     '--up',
@@ -283,7 +283,7 @@ final class ScenarioApplyCommandTest extends TestCase
             ->with(
                 [
                     PHP_BINARY,
-                    'vendor/bin/scenario',
+                    'vendor' . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'scenario',
                     'apply',
                     ValidScenario::class,
                     '--up',
@@ -322,7 +322,7 @@ final class ScenarioApplyCommandTest extends TestCase
             ->with(
                 [
                     PHP_BINARY,
-                    'vendor/bin/scenario',
+                    'vendor' . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'scenario',
                     'apply',
                     ValidScenario::class,
                     '--up',

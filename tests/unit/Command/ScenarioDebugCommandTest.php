@@ -128,7 +128,7 @@ XML
             ->with(
                 [
                     PHP_BINARY,
-                    'vendor/bin/scenario',
+                    'vendor' . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'scenario',
                     'debug',
                     ValidScenario::class,
                     '--force',
@@ -179,7 +179,7 @@ PHP);
             ->with(
                 [
                     PHP_BINARY,
-                    'vendor/bin/scenario',
+                    'vendor' . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'scenario',
                     'debug',
                     'Stateforge\\Scenario\\Laravel\\Tests\\Fixtures\\' . $suffix . '\\MethodLevelScenarioTest',
                     'testDebuggable',
@@ -279,7 +279,7 @@ PHP);
             ->with(
                 [
                     PHP_BINARY,
-                    'vendor/bin/scenario',
+                    'vendor' . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'scenario',
                     'debug',
                     $secondClass,
                     'testFirstDebuggable',
@@ -333,7 +333,7 @@ PHP);
             ->with(
                 [
                     PHP_BINARY,
-                    'vendor/bin/scenario',
+                    'vendor' . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'scenario',
                     'debug',
                     $className,
                     '--force',
@@ -390,7 +390,7 @@ PHP);
             ->with(
                 [
                     PHP_BINARY,
-                    'vendor/bin/scenario',
+                    'vendor' . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'scenario',
                     'debug',
                     ValidScenario::class,
                     '--force',
@@ -454,7 +454,7 @@ PHP);
             ->with(
                 [
                     PHP_BINARY,
-                    'vendor/bin/scenario',
+                    'vendor' . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'scenario',
                     'debug',
                     $className,
                     'testSecondDebuggable',
