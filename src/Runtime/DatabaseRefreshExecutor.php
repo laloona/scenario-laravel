@@ -26,8 +26,8 @@ final class DatabaseRefreshExecutor implements DatabaseRefreshExecutorInterface
         }
 
         $connections = Application::config()?->getConnections() ?? [];
-        if (isset($connections[$metaData->connection]) === true) {
-            $parameters['--path'] = $connections[$metaData->connection]->config;
+        if (isset($connections[$metaData->connection ?? '']) === true) {
+            $parameters['--path'] = $connections[$metaData->connection ?? '']->config;
         }
 
         Artisan::call('migrate:fresh', $parameters);
