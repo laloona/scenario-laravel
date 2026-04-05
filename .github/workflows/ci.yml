@@ -30,6 +30,7 @@ jobs:
 
       - name: Get Composer cache directory
         id: composer-cache
+        shell: bash
         run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
 
       - name: Cache Composer dependencies
@@ -75,6 +76,7 @@ jobs:
 
       - name: Get Composer cache directory
         id: composer-cache
+        shell: bash
         run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
 
       - name: Cache Composer dependencies
@@ -123,6 +125,7 @@ jobs:
 
       - name: Get Composer cache directory
         id: composer-cache
+        shell: bash
         run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
 
       - name: Cache Composer dependencies
@@ -141,6 +144,7 @@ jobs:
         run: composer install --prefer-dist --no-progress --no-interaction
 
       - name: Run PHPUnit with coverage
+        shell: bash
         run: |
           set -o pipefail
           vendor/bin/phpunit --coverage-text --coverage-clover coverage.xml | tee coverage.txt
@@ -148,7 +152,7 @@ jobs:
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-php-${{ matrix.php }}
+          name: coverage-${{ matrix.os }}-php-${{ matrix.php }}
           path: |
             coverage.xml
             coverage.txt
@@ -156,6 +160,6 @@ jobs:
       - name: Add coverage summary
         shell: bash
         run: |
-          echo "## PHPUnit coverage (PHP ${{ matrix.php }})" >> "$GITHUB_STEP_SUMMARY"
+          echo "## PHPUnit coverage (PHP ${{ matrix.php }}, OS ${{ matrix.os }})" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           sed -n '/Code Coverage Report:/,$p' coverage.txt >> "$GITHUB_STEP_SUMMARY"
