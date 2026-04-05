@@ -4829,12 +4829,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/laloona/scenario-core.git",
-                "reference": "b08155951bcfa0e8fe25d3156d1ff3b4666c19f9"
+                "reference": "7f3a508fe78fc083c3f1f82a9fcd48b95a077003"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laloona/scenario-core/zipball/b08155951bcfa0e8fe25d3156d1ff3b4666c19f9",
-                "reference": "b08155951bcfa0e8fe25d3156d1ff3b4666c19f9",
+                "url": "https://api.github.com/repos/laloona/scenario-core/zipball/7f3a508fe78fc083c3f1f82a9fcd48b95a077003",
+                "reference": "7f3a508fe78fc083c3f1f82a9fcd48b95a077003",
                 "shasum": ""
             },
             "require": {
@@ -4873,7 +4873,7 @@
                 "issues": "https://github.com/laloona/scenario-core/issues",
                 "source": "https://github.com/laloona/scenario-core/tree/main"
             },
-            "time": "2026-04-04T19:19:46+00:00"
+            "time": "2026-04-05T09:55:05+00:00"
         },
         {
             "name": "symfony/clock",
