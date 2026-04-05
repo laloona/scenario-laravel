@@ -12,7 +12,6 @@
 namespace Stateforge\Scenario\Laravel\Tests\Unit\Command;
 
 use Illuminate\Console\Command;
-use Mockery;
 use Mockery\Expectation;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
@@ -29,6 +28,7 @@ use Stateforge\Scenario\Laravel\Command\ScenarioCommand;
 use Stateforge\Scenario\Laravel\Command\ScenarioMakeCommand;
 use Stateforge\Scenario\Laravel\Tests\Unit\CommandMock;
 use Stateforge\Scenario\Laravel\Tests\Unit\LaravelMock;
+use Stateforge\Scenario\Laravel\Tests\Unit\PathHelper;
 use Symfony\Component\Console\Tester\CommandTester;
 
 #[CoversClass(ScenarioMakeCommand::class)]
@@ -43,6 +43,7 @@ final class ScenarioMakeCommandTest extends TestCase
 {
     use LaravelMock;
     use CommandMock;
+    use PathHelper;
 
     protected function setUp(): void
     {
@@ -84,16 +85,21 @@ final class ScenarioMakeCommandTest extends TestCase
         $exists = $filesystem->shouldReceive('exists');
         $exists->times(3)
             ->andReturnUsing(function (string $path) use ($blueprint, $scenarioFile, &$scenarioExists): bool {
-                return match ($path) {
-                    $blueprint => true,
-                    $scenarioFile => $scenarioExists,
-                    default => false,
-                };
+                if ($this->pathEndsWith($path, $blueprint)) {
+                    return true;
+                }
+
+                if ($this->pathEndsWith($path, $scenarioFile)) {
+                    return $scenarioExists;
+                }
+
+                return false;
             });
+
         /** @var Expectation $get */
         $get = $filesystem->shouldReceive('get');
         $get->once()
-            ->with($blueprint)
+            ->withArgs(fn (string $path): bool => $this->pathEndsWith($path, $blueprint))
             ->andReturn(<<<'PHP'
 <?php
 
@@ -103,18 +109,21 @@ final class %className%
 {
 }
 PHP);
+
         /** @var Expectation $put */
         $put = $filesystem->shouldReceive('put');
         $put->once()
-            ->with(
-                $scenarioFile,
-                Mockery::on(function (string $content) use (&$scenarioExists): bool {
-                    $scenarioExists = true;
-                    self::assertStringContainsString('namespace Stateforge\\Suite\\Scenario\\Main;', $content);
-                    self::assertStringContainsString('final class DemoScenario', $content);
-                    return true;
-                }),
-            );
+            ->withArgs(function (string $path, string $content) use ($scenarioFile, &$scenarioExists): bool {
+                if (! $this->pathEndsWith($path, $scenarioFile)) {
+                    return false;
+                }
+
+                $scenarioExists = true;
+                self::assertStringContainsString('namespace Stateforge\\Suite\\Scenario\\Main;', $content);
+                self::assertStringContainsString('final class DemoScenario', $content);
+
+                return true;
+            });
 
         $command = new ScenarioMakeCommand();
         $command->setLaravel($this->getLaravelMock());
@@ -137,11 +146,13 @@ PHP);
         /** @var Expectation $exists */
         $exists = $filesystem->shouldReceive('exists');
         $exists->once()
-            ->with($blueprint)
+            ->withArgs(fn (string $path): bool => $this->pathEndsWith($path, $blueprint))
             ->andReturn(false);
+
         /** @var Expectation $get */
         $get = $filesystem->shouldReceive('get');
         $get->never();
+
         /** @var Expectation $put */
         $put = $filesystem->shouldReceive('put');
         $put->never();
@@ -167,16 +178,22 @@ PHP);
         /** @var Expectation $exists */
         $exists = $filesystem->shouldReceive('exists');
         $exists->times(2)
-            ->andReturnUsing(static function (string $path) use ($blueprint, $scenarioFile): bool {
-                return match ($path) {
-                    $blueprint => true,
-                    $scenarioFile => true,
-                    default => false,
-                };
+            ->andReturnUsing(function (string $path) use ($blueprint, $scenarioFile): bool {
+                if ($this->pathEndsWith($path, $blueprint)) {
+                    return true;
+                }
+
+                if ($this->pathEndsWith($path, $scenarioFile)) {
+                    return true;
+                }
+
+                return false;
             });
+
         /** @var Expectation $get */
         $get = $filesystem->shouldReceive('get');
         $get->never();
+
         /** @var Expectation $put */
         $put = $filesystem->shouldReceive('put');
         $put->never();
@@ -207,11 +224,13 @@ PHP);
         /** @var Expectation $exists */
         $exists = $filesystem->shouldReceive('exists');
         $exists->once()
-            ->with($blueprint)
+            ->withArgs(fn (string $path): bool => $this->pathEndsWith($path, $blueprint))
             ->andReturn(true);
+
         /** @var Expectation $get */
         $get = $filesystem->shouldReceive('get');
         $get->never();
+
         /** @var Expectation $put */
         $put = $filesystem->shouldReceive('put');
         $put->never();
@@ -239,28 +258,36 @@ PHP);
         $exists = $filesystem->shouldReceive('exists');
         $exists->times(3)
             ->andReturnUsing(function (string $path) use ($blueprint, $scenarioFile, &$scenarioExists): bool {
-                return match ($path) {
-                    $blueprint => true,
-                    $scenarioFile => $scenarioExists,
-                    default => false,
-                };
+                if ($this->pathEndsWith($path, $blueprint)) {
+                    return true;
+                }
+
+                if ($this->pathEndsWith($path, $scenarioFile)) {
+                    return $scenarioExists;
+                }
+
+                return false;
             });
+
         /** @var Expectation $get */
         $get = $filesystem->shouldReceive('get');
         $get->once()
-            ->with($blueprint)
+            ->withArgs(fn (string $path): bool => $this->pathEndsWith($path, $blueprint))
             ->andReturn('<?php final class %className% {}');
+
         /** @var Expectation $put */
         $put = $filesystem->shouldReceive('put');
         $put->once()
-            ->with(
-                $scenarioFile,
-                Mockery::on(function (string $content) use (&$scenarioExists): bool {
-                    $scenarioExists = true;
-                    self::assertStringContainsString('final class CleanScenario', $content);
-                    return true;
-                }),
-            );
+            ->withArgs(function (string $path, string $content) use ($scenarioFile, &$scenarioExists): bool {
+                if (! $this->pathEndsWith($path, $scenarioFile)) {
+                    return false;
+                }
+
+                $scenarioExists = true;
+                self::assertStringContainsString('final class CleanScenario', $content);
+
+                return true;
+            });
 
         $command = new ScenarioMakeCommand();
         $command->setLaravel($this->getLaravelMock());
@@ -293,29 +320,37 @@ PHP);
         $exists = $filesystem->shouldReceive('exists');
         $exists->times(3)
             ->andReturnUsing(function (string $path) use ($blueprint, $scenarioFile, &$scenarioExists): bool {
-                return match ($path) {
-                    $blueprint => true,
-                    $scenarioFile => $scenarioExists,
-                    default => false,
-                };
+                if ($this->pathEndsWith($path, $blueprint)) {
+                    return true;
+                }
+
+                if ($this->pathEndsWith($path, $scenarioFile)) {
+                    return $scenarioExists;
+                }
+
+                return false;
             });
+
         /** @var Expectation $get */
         $get = $filesystem->shouldReceive('get');
         $get->once()
-            ->with($blueprint)
+            ->withArgs(fn (string $path): bool => $this->pathEndsWith($path, $blueprint))
             ->andReturn('<?php namespace Stateforge\\Suite\\%nameSpace%; final class %className% {}');
+
         /** @var Expectation $put */
         $put = $filesystem->shouldReceive('put');
         $put->once()
-            ->with(
-                $scenarioFile,
-                Mockery::on(function (string $content) use (&$scenarioExists): bool {
-                    $scenarioExists = true;
-                    self::assertStringContainsString('namespace Stateforge\\Suite\\Scenario\\Admin\\User;', $content);
-                    self::assertStringContainsString('final class BackofficeScenario', $content);
-                    return true;
-                }),
-            );
+            ->withArgs(function (string $path, string $content) use ($scenarioFile, &$scenarioExists): bool {
+                if (! $this->pathEndsWith($path, $scenarioFile)) {
+                    return false;
+                }
+
+                $scenarioExists = true;
+                self::assertStringContainsString('namespace Stateforge\\Suite\\Scenario\\Admin\\User;', $content);
+                self::assertStringContainsString('final class BackofficeScenario', $content);
+
+                return true;
+            });
 
         $command = new ScenarioMakeCommand();
         $command->setLaravel($this->getLaravelMock());
@@ -339,22 +374,28 @@ PHP);
         /** @var Expectation $exists */
         $exists = $filesystem->shouldReceive('exists');
         $exists->times(3)
-            ->andReturnUsing(static function (string $path) use ($blueprint, $scenarioFile): bool {
-                return match ($path) {
-                    $blueprint => true,
-                    $scenarioFile => false,
-                    default => false,
-                };
+            ->andReturnUsing(function (string $path) use ($blueprint, $scenarioFile): bool {
+                if ($this->pathEndsWith($path, $blueprint)) {
+                    return true;
+                }
+
+                if ($this->pathEndsWith($path, $scenarioFile)) {
+                    return false;
+                }
+
+                return false;
             });
+
         /** @var Expectation $get */
         $get = $filesystem->shouldReceive('get');
         $get->once()
-            ->with($blueprint)
+            ->withArgs(fn (string $path): bool => $this->pathEndsWith($path, $blueprint))
             ->andReturn('<?php final class Stateforge\\Suite\\%className% {}');
+
         /** @var Expectation $put */
         $put = $filesystem->shouldReceive('put');
         $put->once()
-            ->with($scenarioFile, Mockery::type('string'));
+            ->withArgs(fn (string $path, string $content): bool => $this->pathEndsWith($path, $scenarioFile));
 
         $command = new ScenarioMakeCommand();
         $command->setLaravel($this->getLaravelMock());
@@ -373,6 +414,7 @@ PHP);
         $this->commandMocks();
 
         $process = $this->getProcessMock();
+
         /** @var Expectation $expectation */
         $expectation = $process->shouldReceive('run');
         $expectation->never();
@@ -389,5 +431,4 @@ PHP);
         $property = (new ReflectionClass(Application::class))->getProperty('configuration');
         $property->setValue(null, $configuration);
     }
-
 }
