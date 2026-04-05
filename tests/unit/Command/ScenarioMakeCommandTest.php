@@ -132,7 +132,7 @@ PHP);
         $tester->setInputs(['demoScenario']);
 
         self::assertSame(Command::SUCCESS, $tester->execute([]));
-        self::assertStringContainsString('Scenario "' . $scenarioFile . '" generated', $tester->getDisplay());
+        self::assertStringContainsString('DemoScenario.php', $tester->getDisplay());
     }
 
     public function testExecuteFailsWhenBlueprintDoesNotExist(): void
@@ -359,7 +359,7 @@ PHP);
         $tester->setInputs(['admin', 'backofficeScenario']);
 
         self::assertSame(Command::SUCCESS, $tester->execute([]));
-        self::assertStringContainsString('Scenario "' . $scenarioFile . '" generated', $tester->getDisplay());
+        self::assertStringContainsString('BackofficeScenario.php', $tester->getDisplay());
     }
 
     public function testExecuteFailsWhenGeneratedScenarioFileCannotBeVerified(): void

@@ -32,6 +32,7 @@ use stdClass;
 use function file_exists;
 use function is_dir;
 use function mkdir;
+use function realpath;
 use function rmdir;
 use function scandir;
 use function sys_get_temp_dir;
@@ -77,7 +78,7 @@ final class ScenarioTest extends TestCase
             ->twice()
             ->andReturn($this->tempDir);
 
-        self::assertSame($existing, (new ValidScenario())->publicAbsoluteDir('var', false));
+        self::assertSame(realpath($existing), (new ValidScenario())->publicAbsoluteDir('var', false));
     }
 
     public function testAbsoluteDirKeepsAlreadyAbsoluteDirectory(): void
@@ -89,21 +90,22 @@ final class ScenarioTest extends TestCase
             ->once()
             ->andReturn($this->tempDir);
 
-        self::assertSame($existing, (new ValidScenario())->publicAbsoluteDir($existing, false));
+        self::assertSame(realpath($existing), (new ValidScenario())->publicAbsoluteDir($existing, false));
     }
 
     public function testAbsoluteDirCreatesDirectoryWhenRequested(): void
     {
-        $expected = $this->tempDir . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'cache';
-
         App::shouldReceive('basePath')
             ->twice()
             ->andReturn($this->tempDir);
 
         $result = (new ValidScenario())->publicAbsoluteDir('storage/cache', true);
 
+        $expected = realpath($this->tempDir . DIRECTORY_SEPARATOR . 'storage' . DIRECTORY_SEPARATOR . 'cache');
+        self::assertIsString($expected);
         self::assertSame($expected, $result);
         self::assertTrue(file_exists($expected));
+        self::assertTrue(is_dir($expected));
     }
 
     public function testAbsoluteDirReturnsFalseWhenDirectoryDoesNotExistAndIsNotCreated(): void
@@ -126,7 +128,7 @@ final class ScenarioTest extends TestCase
 
         $result = (new ValidScenario())->publicAbsoluteFile('fixtures/demo.txt', false);
 
-        self::assertSame($expectedDirectory . DIRECTORY_SEPARATOR . 'demo.txt', $result);
+        self::assertSame(realpath($expectedDirectory) . DIRECTORY_SEPARATOR . 'demo.txt', $result);
     }
 
     public function testAbsoluteFileReturnsFalseWhenParentDirectoryCannotBeResolved(): void
