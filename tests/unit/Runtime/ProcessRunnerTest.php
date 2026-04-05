@@ -17,6 +17,8 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
 use Stateforge\Scenario\Laravel\Runtime\ProcessRunner;
+use function sys_get_temp_dir;
+use const PHP_BINARY;
 
 #[CoversClass(ProcessRunner::class)]
 #[Group('runtime')]
@@ -25,12 +27,24 @@ final class ProcessRunnerTest extends TestCase
 {
     public function testRunReturnsTrueForSuccessfulProcess(): void
     {
-        self::assertTrue((new ProcessRunner())->run(['/bin/sh', '-c', 'exit 0'], '/tmp', null));
+        self::assertTrue(
+            (new ProcessRunner())->run(
+                [PHP_BINARY, '-r', 'exit(0);'],
+                sys_get_temp_dir(),
+                null,
+            ),
+        );
     }
 
     public function testRunReturnsFalseForFailedProcess(): void
     {
-        self::assertFalse((new ProcessRunner())->run(['/bin/sh', '-c', 'exit 1'], '/tmp', null));
+        self::assertFalse(
+            (new ProcessRunner())->run(
+                [PHP_BINARY, '-r', 'exit(1);'],
+                sys_get_temp_dir(),
+                null,
+            ),
+        );
     }
 
     public function testRunWritesProcessOutputWhenOutputStyleIsProvided(): void
@@ -40,6 +54,12 @@ final class ProcessRunnerTest extends TestCase
             ->method('write')
             ->with(self::stringContains('hello'));
 
-        self::assertTrue((new ProcessRunner())->run(['/bin/sh', '-c', 'printf hello'], '/tmp', $output));
+        self::assertTrue(
+            (new ProcessRunner())->run(
+                [PHP_BINARY, '-r', 'echo "hello";'],
+                sys_get_temp_dir(),
+                $output,
+            ),
+        );
     }
 }
