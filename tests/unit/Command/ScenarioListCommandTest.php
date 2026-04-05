@@ -25,6 +25,7 @@ use Stateforge\Scenario\Core\Runtime\ScenarioRegistry;
 use Stateforge\Scenario\Laravel\Command\ScenarioCommand;
 use Stateforge\Scenario\Laravel\Command\ScenarioListCommand;
 use Symfony\Component\Console\Tester\CommandTester;
+use const DIRECTORY_SEPARATOR;
 use const PHP_BINARY;
 
 #[CoversClass(ScenarioCommand::class)]

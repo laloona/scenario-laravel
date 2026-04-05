@@ -45,6 +45,7 @@ use function rmdir;
 use function sys_get_temp_dir;
 use function uniqid;
 use function unlink;
+use const DIRECTORY_SEPARATOR;
 use const PHP_BINARY;
 
 #[CoversClass(ScenarioDebugCommand::class)]

@@ -36,6 +36,7 @@ use Stateforge\Scenario\Laravel\Tests\Files\ValidScenario;
 use Stateforge\Scenario\Laravel\Tests\Unit\CommandMock;
 use Stateforge\Scenario\Laravel\Tests\Unit\LaravelMock;
 use Symfony\Component\Console\Tester\CommandTester;
+use const DIRECTORY_SEPARATOR;
 use const PHP_BINARY;
 
 #[CoversClass(ScenarioApplyCommand::class)]
