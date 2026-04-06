@@ -6,7 +6,7 @@ use Stateforge\Scenario\Core\Attribute\AsScenario;
 use Stateforge\Scenario\Laravel\Scenario;
 
 #[AsScenario(
-    name:'some usefull name should be chosen',
+    name:'some-usefull-name-should-be-chosen',
     description: 'some usefull text should be written hier'
 )]
 final class %className% extends Scenario

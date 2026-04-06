@@ -2,6 +2,7 @@
   "name": "stateforge/scenario-laravel",
   "description": "Laravel adapter for Stateforge Scenario Core – declarative, attribute-driven scenario execution for reproducible application state.",
   "type": "library",
+  "keywords": ["testing", "scenario", "state", "framework"],
   "license": "BSD-3-Clause",
   "authors": [
     {

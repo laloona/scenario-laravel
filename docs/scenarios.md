@@ -45,7 +45,7 @@ The name defined in `#[AsScenario]` is used:
 ### Best practices
 - use descriptive names: user-with-subscription
 - keep names stable (avoid breaking references)
-- prefer kebab-case or snake_case
+- prefer kebab-case, snake_case or camelCase
 
 ## Applying Scenarios
 Scenarios are applied using the `#[ApplyScenario]` attribute.

@@ -4829,12 +4829,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/laloona/scenario-core.git",
-                "reference": "dced85b6893a13ae0ae25e6b660c04d24572cdaf"
+                "reference": "1aa82107fb54f30a462f93c808fb4ae50d4fa049"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laloona/scenario-core/zipball/dced85b6893a13ae0ae25e6b660c04d24572cdaf",
-                "reference": "dced85b6893a13ae0ae25e6b660c04d24572cdaf",
+                "url": "https://api.github.com/repos/laloona/scenario-core/zipball/1aa82107fb54f30a462f93c808fb4ae50d4fa049",
+                "reference": "1aa82107fb54f30a462f93c808fb4ae50d4fa049",
                 "shasum": ""
             },
             "require": {
@@ -4869,11 +4869,17 @@
                 }
             ],
             "description": "Core library for declarative, attribute-driven scenario orchestration for reproducible test data states in PHP.",
+            "keywords": [
+                "framework",
+                "scenario",
+                "state",
+                "testing"
+            ],
             "support": {
                 "issues": "https://github.com/laloona/scenario-core/issues",
                 "source": "https://github.com/laloona/scenario-core/tree/main"
             },
-            "time": "2026-04-05T10:33:00+00:00"
+            "time": "2026-04-06T07:05:00+00:00"
         },
         {
             "name": "symfony/clock",
