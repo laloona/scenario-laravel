@@ -1,3 +1,14 @@
+<img src="docs/scenario.png" alt="Stateforge\Scenario\Laravel" width="600px" />
+
+![CI](https://github.com/laloona/scenario-laravel/actions/workflows/ci.yml/badge.svg)
+![PHPStan](https://img.shields.io/badge/PHPStan-level%2010-brightgreen)
+![Stability](https://img.shields.io/badge/stability-stable-brightgreen)
+![Latest Version](https://img.shields.io/packagist/v/stateforge/scenario-laravel)
+![PHP Version](https://img.shields.io/packagist/php-v/stateforge/scenario-laravel)
+![License](https://img.shields.io/github/license/laloona/scenario-laravel)
+
+---
+
 # Scenario Laravel
 Laravel integration for Stateforge Scenario Core.
 
