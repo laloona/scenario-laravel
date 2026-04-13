@@ -121,6 +121,7 @@ config('scenario.allowed_envs');
 
 - [Getting Started](docs/getting-started.md)
 - [Scenarios](docs/scenarios.md)
+- [Parameter Types](docs/parameter-types.md)
 - [CLI Usage](docs/cli.md)
 - [Testing with PHPUnit](docs/testing-with-phpunit.md)
 - [Recipes](docs/recipes.md)

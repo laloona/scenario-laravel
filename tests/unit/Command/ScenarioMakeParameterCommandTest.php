@@ -26,11 +26,13 @@ use Stateforge\Scenario\Core\Runtime\Application\Configuration\LoadedConfigurati
 use Stateforge\Scenario\Core\Runtime\Application\Configuration\Value\SuiteValue;
 use Stateforge\Scenario\Laravel\Command\ScenarioCommand;
 use Stateforge\Scenario\Laravel\Command\ScenarioMakeCommand;
+use Stateforge\Scenario\Laravel\Command\ScenarioMakeParameterCommand;
 use Stateforge\Scenario\Laravel\Tests\Unit\CommandMock;
 use Stateforge\Scenario\Laravel\Tests\Unit\LaravelMock;
 use Stateforge\Scenario\Laravel\Tests\Unit\PathHelper;
 use Symfony\Component\Console\Tester\CommandTester;
 
+#[CoversClass(ScenarioMakeParameterCommand::class)]
 #[CoversClass(ScenarioMakeCommand::class)]
 #[UsesClass(ScenarioCommand::class)]
 #[UsesClass(Application::class)]
@@ -39,7 +41,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 #[UsesClass(SuiteValue::class)]
 #[Group('command')]
 #[Medium]
-final class ScenarioMakeCommandTest extends TestCase
+final class ScenarioMakeParameterCommandTest extends TestCase
 {
     use LaravelMock;
     use CommandMock;
@@ -64,33 +66,33 @@ final class ScenarioMakeCommandTest extends TestCase
     public function testCommandIsConfigured(): void
     {
         $this->setUpInstalled(true, 2);
-        $command = new ScenarioMakeCommand();
+        $command = new ScenarioMakeParameterCommand();
 
-        self::assertSame('scenario:make', $command->getName());
-        self::assertSame('Make a scenario - should only be used for local/develop/testing', $command->getDescription());
+        self::assertSame('scenario:make:parameter', $command->getName());
+        self::assertSame('Make a parameter type - should only be used for local/develop/testing', $command->getDescription());
         self::assertFalse($command->isHidden());
     }
 
-    public function testExecuteGeneratesScenarioFileFromBlueprint(): void
+    public function testExecuteGeneratesParameterTypeFileFromBlueprint(): void
     {
         $filesystem = $this->setUpInstalled(true, 2);
         $this->basePathMock('/app/root');
         $this->commandMocks();
 
-        $blueprint = 'vendor/stateforge/scenario-laravel/blueprint/scenario.blueprint';
-        $scenarioFile = 'scenario/main/DemoScenario.php';
-        $scenarioExists = false;
+        $blueprint = 'vendor/stateforge/scenario-laravel/blueprint/parameter.blueprint';
+        $parameterFile = 'scenario/parameter/DemoParameter.php';
+        $parameterExists = false;
 
         /** @var Expectation $exists */
         $exists = $filesystem->shouldReceive('exists');
         $exists->times(3)
-            ->andReturnUsing(function (string $path) use ($blueprint, $scenarioFile, &$scenarioExists): bool {
+            ->andReturnUsing(function (string $path) use ($blueprint, $parameterFile, &$parameterExists): bool {
                 if ($this->pathEndsWith($path, $blueprint)) {
                     return true;
                 }
 
-                if ($this->pathEndsWith($path, $scenarioFile)) {
-                    return $scenarioExists;
+                if ($this->pathEndsWith($path, $parameterFile)) {
+                    return $parameterExists;
                 }
 
                 return false;
@@ -103,36 +105,40 @@ final class ScenarioMakeCommandTest extends TestCase
             ->andReturn(<<<'PHP'
 <?php
 
-namespace Stateforge\Suite\%nameSpace%;
+namespace Stateforge\Parameter\%nameSpace%;
 
 final class %className%
 {
 }
 PHP);
 
+        /** @var Expectation $ensureDirectoryExists */
+        $ensureDirectoryExists = $filesystem->shouldReceive('ensureDirectoryExists');
+        $ensureDirectoryExists->once();
+
         /** @var Expectation $put */
         $put = $filesystem->shouldReceive('put');
         $put->once()
-            ->withArgs(function (string $path, string $content) use ($scenarioFile, &$scenarioExists): bool {
-                if (! $this->pathEndsWith($path, $scenarioFile)) {
+            ->withArgs(function (string $path, string $content) use ($parameterFile, &$parameterExists): bool {
+                if (! $this->pathEndsWith($path, $parameterFile)) {
                     return false;
                 }
 
-                $scenarioExists = true;
-                self::assertStringContainsString('namespace Stateforge\\Suite\\Scenario\\Main;', $content);
-                self::assertStringContainsString('final class DemoScenario', $content);
+                $parameterExists = true;
+                self::assertStringContainsString('namespace Stateforge\\Parameter\\Scenario\\Parameter;', $content);
+                self::assertStringContainsString('final class DemoParameter', $content);
 
                 return true;
             });
 
-        $command = new ScenarioMakeCommand();
+        $command = new ScenarioMakeParameterCommand();
         $command->setLaravel($this->getLaravelMock());
 
         $tester = new CommandTester($command);
-        $tester->setInputs(['demoScenario']);
+        $tester->setInputs(['demoParameter']);
 
         self::assertSame(Command::SUCCESS, $tester->execute([]));
-        self::assertStringContainsString('DemoScenario.php', $tester->getDisplay());
+        self::assertStringContainsString('DemoParameter.php', $tester->getDisplay());
     }
 
     public function testExecuteFailsWhenBlueprintDoesNotExist(): void
@@ -141,7 +147,7 @@ PHP);
         $this->basePathMock('/app/root');
         $this->commandMocks();
 
-        $blueprint = 'vendor/stateforge/scenario-laravel/blueprint/scenario.blueprint';
+        $blueprint = 'vendor/stateforge/scenario-laravel/blueprint/parameter.blueprint';
 
         /** @var Expectation $exists */
         $exists = $filesystem->shouldReceive('exists');
@@ -149,6 +155,10 @@ PHP);
             ->withArgs(fn (string $path): bool => $this->pathEndsWith($path, $blueprint))
             ->andReturn(false);
 
+        /** @var Expectation $ensureDirectoryExists */
+        $ensureDirectoryExists = $filesystem->shouldReceive('ensureDirectoryExists');
+        $ensureDirectoryExists->never();
+
         /** @var Expectation $get */
         $get = $filesystem->shouldReceive('get');
         $get->never();
@@ -157,75 +167,42 @@ PHP);
         $put = $filesystem->shouldReceive('put');
         $put->never();
 
-        $command = new ScenarioMakeCommand();
+        $command = new ScenarioMakeParameterCommand();
         $command->setLaravel($this->getLaravelMock());
 
         $tester = new CommandTester($command);
 
         self::assertSame(Command::FAILURE, $tester->execute([]));
-        self::assertStringContainsString('Scenario generation failed.', $tester->getDisplay());
+        self::assertStringContainsString('Parameter type generation failed.', $tester->getDisplay());
     }
 
-    public function testExecuteFailsWhenScenarioAlreadyExists(): void
+    public function testExecuteFailsWhenParameterTypeAlreadyExists(): void
     {
         $filesystem = $this->setUpInstalled(true, 2);
         $this->basePathMock('/app/root');
         $this->commandMocks();
 
-        $blueprint = 'vendor/stateforge/scenario-laravel/blueprint/scenario.blueprint';
-        $scenarioFile = 'scenario/main/ExistingScenario.php';
+        $blueprint = 'vendor/stateforge/scenario-laravel/blueprint/parameter.blueprint';
+        $parameterFile = 'scenario/parameter/ExistingParameter.php';
 
         /** @var Expectation $exists */
         $exists = $filesystem->shouldReceive('exists');
         $exists->times(2)
-            ->andReturnUsing(function (string $path) use ($blueprint, $scenarioFile): bool {
+            ->andReturnUsing(function (string $path) use ($blueprint, $parameterFile): bool {
                 if ($this->pathEndsWith($path, $blueprint)) {
                     return true;
                 }
 
-                if ($this->pathEndsWith($path, $scenarioFile)) {
+                if ($this->pathEndsWith($path, $parameterFile)) {
                     return true;
                 }
 
                 return false;
             });
 
-        /** @var Expectation $get */
-        $get = $filesystem->shouldReceive('get');
-        $get->never();
-
-        /** @var Expectation $put */
-        $put = $filesystem->shouldReceive('put');
-        $put->never();
-
-        $command = new ScenarioMakeCommand();
-        $command->setLaravel($this->getLaravelMock());
-
-        $tester = new CommandTester($command);
-        $tester->setInputs(['existingScenario']);
-
-        self::assertSame(Command::FAILURE, $tester->execute([]));
-        self::assertStringContainsString('Scenario already exists.', $tester->getDisplay());
-    }
-
-    public function testExecuteFailsWhenNoSuitesAreConfigured(): void
-    {
-        $filesystem = $this->setUpInstalled(true, 2);
-        $this->basePathMock('/app/root');
-        $this->commandMocks();
-
-        $configuration = self::createStub(Configuration::class);
-        $configuration->method('getSuites')
-            ->willReturn([]);
-        $this->setScenarioConfiguration($configuration);
-
-        $blueprint = 'vendor/stateforge/scenario-laravel/blueprint/scenario.blueprint';
-
-        /** @var Expectation $exists */
-        $exists = $filesystem->shouldReceive('exists');
-        $exists->once()
-            ->withArgs(fn (string $path): bool => $this->pathEndsWith($path, $blueprint))
-            ->andReturn(true);
+        /** @var Expectation $ensureDirectoryExists */
+        $ensureDirectoryExists = $filesystem->shouldReceive('ensureDirectoryExists');
+        $ensureDirectoryExists->never();
 
         /** @var Expectation $get */
         $get = $filesystem->shouldReceive('get');
@@ -235,35 +212,36 @@ PHP);
         $put = $filesystem->shouldReceive('put');
         $put->never();
 
-        $command = new ScenarioMakeCommand();
+        $command = new ScenarioMakeParameterCommand();
         $command->setLaravel($this->getLaravelMock());
 
         $tester = new CommandTester($command);
+        $tester->setInputs(['existingParameter']);
 
         self::assertSame(Command::FAILURE, $tester->execute([]));
-        self::assertStringContainsString('Application configuration not found.', $tester->getDisplay());
+        self::assertStringContainsString('Parameter type already exists.', $tester->getDisplay());
     }
 
-    public function testExecuteRepeatsQuestionUntilScenarioNameIsValid(): void
+    public function testExecuteRepeatsQuestionUntilParameterTypeNameIsValid(): void
     {
         $filesystem = $this->setUpInstalled(true, 2);
         $this->basePathMock('/app/root');
         $this->commandMocks();
 
-        $blueprint = 'vendor/stateforge/scenario-laravel/blueprint/scenario.blueprint';
-        $scenarioFile = 'scenario/main/CleanScenario.php';
-        $scenarioExists = false;
+        $blueprint = 'vendor/stateforge/scenario-laravel/blueprint/parameter.blueprint';
+        $parameterFile = 'scenario/parameter/ValidParameter.php';
+        $parameterExists = false;
 
         /** @var Expectation $exists */
         $exists = $filesystem->shouldReceive('exists');
         $exists->times(3)
-            ->andReturnUsing(function (string $path) use ($blueprint, $scenarioFile, &$scenarioExists): bool {
+            ->andReturnUsing(function (string $path) use ($blueprint, $parameterFile, &$parameterExists): bool {
                 if ($this->pathEndsWith($path, $blueprint)) {
                     return true;
                 }
 
-                if ($this->pathEndsWith($path, $scenarioFile)) {
-                    return $scenarioExists;
+                if ($this->pathEndsWith($path, $parameterFile)) {
+                    return $parameterExists;
                 }
 
                 return false;
@@ -275,111 +253,52 @@ PHP);
             ->withArgs(fn (string $path): bool => $this->pathEndsWith($path, $blueprint))
             ->andReturn('<?php final class %className% {}');
 
+        /** @var Expectation $ensureDirectoryExists */
+        $ensureDirectoryExists = $filesystem->shouldReceive('ensureDirectoryExists');
+        $ensureDirectoryExists->once();
+
         /** @var Expectation $put */
         $put = $filesystem->shouldReceive('put');
         $put->once()
-            ->withArgs(function (string $path, string $content) use ($scenarioFile, &$scenarioExists): bool {
-                if (! $this->pathEndsWith($path, $scenarioFile)) {
+            ->withArgs(function (string $path, string $content) use ($parameterFile, &$parameterExists): bool {
+                if (! $this->pathEndsWith($path, $parameterFile)) {
                     return false;
                 }
 
-                $scenarioExists = true;
-                self::assertStringContainsString('final class CleanScenario', $content);
+                $parameterExists = true;
+                self::assertStringContainsString('final class ValidParameter', $content);
 
                 return true;
             });
 
-        $command = new ScenarioMakeCommand();
+        $command = new ScenarioMakeParameterCommand();
         $command->setLaravel($this->getLaravelMock());
 
         $tester = new CommandTester($command);
-        $tester->setInputs(['bad name!', 'cleanScenario']);
+        $tester->setInputs(['bad name!', 'validParameter']);
 
         self::assertSame(Command::SUCCESS, $tester->execute([]));
         self::assertStringContainsString('Input was invalid, please try again.', $tester->getDisplay());
     }
 
-    public function testExecuteGeneratesScenarioInSelectedSuite(): void
+    public function testExecuteFailsWhenGeneratedParameterTypeFileCannotBeVerified(): void
     {
         $filesystem = $this->setUpInstalled(true, 2);
         $this->basePathMock('/app/root');
         $this->commandMocks();
 
-        $configuration = new LoadedConfiguration(new DefaultConfiguration());
-        $configuration->setSuites([
-            'main' => new SuiteValue('main', 'scenario/main'),
-            'admin' => new SuiteValue('admin', 'scenario/admin/user'),
-        ]);
-        $this->setScenarioConfiguration($configuration);
-
-        $blueprint = 'vendor/stateforge/scenario-laravel/blueprint/scenario.blueprint';
-        $scenarioFile = 'scenario/admin/user/BackofficeScenario.php';
-        $scenarioExists = false;
+        $blueprint = 'vendor/stateforge/scenario-laravel/blueprint/parameter.blueprint';
+        $parameterFile = 'scenario/parameter/BrokenParameter.php';
 
         /** @var Expectation $exists */
         $exists = $filesystem->shouldReceive('exists');
         $exists->times(3)
-            ->andReturnUsing(function (string $path) use ($blueprint, $scenarioFile, &$scenarioExists): bool {
+            ->andReturnUsing(function (string $path) use ($blueprint, $parameterFile): bool {
                 if ($this->pathEndsWith($path, $blueprint)) {
                     return true;
                 }
 
-                if ($this->pathEndsWith($path, $scenarioFile)) {
-                    return $scenarioExists;
-                }
-
-                return false;
-            });
-
-        /** @var Expectation $get */
-        $get = $filesystem->shouldReceive('get');
-        $get->once()
-            ->withArgs(fn (string $path): bool => $this->pathEndsWith($path, $blueprint))
-            ->andReturn('<?php namespace Stateforge\\Suite\\%nameSpace%; final class %className% {}');
-
-        /** @var Expectation $put */
-        $put = $filesystem->shouldReceive('put');
-        $put->once()
-            ->withArgs(function (string $path, string $content) use ($scenarioFile, &$scenarioExists): bool {
-                if (! $this->pathEndsWith($path, $scenarioFile)) {
-                    return false;
-                }
-
-                $scenarioExists = true;
-                self::assertStringContainsString('namespace Stateforge\\Suite\\Scenario\\Admin\\User;', $content);
-                self::assertStringContainsString('final class BackofficeScenario', $content);
-
-                return true;
-            });
-
-        $command = new ScenarioMakeCommand();
-        $command->setLaravel($this->getLaravelMock());
-
-        $tester = new CommandTester($command);
-        $tester->setInputs(['admin', 'backofficeScenario']);
-
-        self::assertSame(Command::SUCCESS, $tester->execute([]));
-        self::assertStringContainsString('BackofficeScenario.php', $tester->getDisplay());
-    }
-
-    public function testExecuteFailsWhenGeneratedScenarioFileCannotBeVerified(): void
-    {
-        $filesystem = $this->setUpInstalled(true, 2);
-        $this->basePathMock('/app/root');
-        $this->commandMocks();
-
-        $blueprint = 'vendor/stateforge/scenario-laravel/blueprint/scenario.blueprint';
-        $scenarioFile = 'scenario/main/DemoScenario.php';
-
-        /** @var Expectation $exists */
-        $exists = $filesystem->shouldReceive('exists');
-        $exists->times(3)
-            ->andReturnUsing(function (string $path) use ($blueprint, $scenarioFile): bool {
-                if ($this->pathEndsWith($path, $blueprint)) {
-                    return true;
-                }
-
-                if ($this->pathEndsWith($path, $scenarioFile)) {
+                if ($this->pathEndsWith($path, $parameterFile)) {
                     return false;
                 }
 
@@ -390,21 +309,60 @@ PHP);
         $get = $filesystem->shouldReceive('get');
         $get->once()
             ->withArgs(fn (string $path): bool => $this->pathEndsWith($path, $blueprint))
-            ->andReturn('<?php final class Stateforge\\Suite\\%className% {}');
+            ->andReturn('<?php final class %className% {}');
+
+        /** @var Expectation $ensureDirectoryExists */
+        $ensureDirectoryExists = $filesystem->shouldReceive('ensureDirectoryExists');
+        $ensureDirectoryExists->once();
 
         /** @var Expectation $put */
         $put = $filesystem->shouldReceive('put');
         $put->once()
-            ->withArgs(fn (string $path, string $content): bool => $this->pathEndsWith($path, $scenarioFile));
+            ->withArgs(fn (string $path, string $content): bool => $this->pathEndsWith($path, $parameterFile));
 
-        $command = new ScenarioMakeCommand();
+        $command = new ScenarioMakeParameterCommand();
         $command->setLaravel($this->getLaravelMock());
 
         $tester = new CommandTester($command);
-        $tester->setInputs(['demoScenario']);
+        $tester->setInputs(['brokenParameter']);
 
         self::assertSame(Command::FAILURE, $tester->execute([]));
-        self::assertStringContainsString('Scenario generation failed.', $tester->getDisplay());
+        self::assertStringContainsString('Parameter type generation failed.', $tester->getDisplay());
+    }
+
+    public function testExecuteFailsWhenParameterTypeNameWasNotProvided(): void
+    {
+        $filesystem = $this->setUpInstalled(true, 2);
+        $this->basePathMock('/app/root');
+        $this->commandMocks();
+
+        $blueprint = 'vendor/stateforge/scenario-laravel/blueprint/parameter.blueprint';
+
+        /** @var Expectation $exists */
+        $exists = $filesystem->shouldReceive('exists');
+        $exists->once()
+            ->withArgs(fn (string $path): bool => $this->pathEndsWith($path, $blueprint))
+            ->andReturn(true);
+
+        /** @var Expectation $ensureDirectoryExists */
+        $ensureDirectoryExists = $filesystem->shouldReceive('ensureDirectoryExists');
+        $ensureDirectoryExists->never();
+
+        /** @var Expectation $get */
+        $get = $filesystem->shouldReceive('get');
+        $get->never();
+
+        /** @var Expectation $put */
+        $put = $filesystem->shouldReceive('put');
+        $put->never();
+
+        $command = new ScenarioMakeParameterCommand();
+        $command->setLaravel($this->getLaravelMock());
+
+        $tester = new CommandTester($command);
+
+        self::assertSame(Command::FAILURE, $tester->execute([], ['interactive' => false]));
+        self::assertStringContainsString('Parameter type generation failed.', $tester->getDisplay());
     }
 
     public function testExecuteCommandReturnsFailureWhenScenarioIsNotInstalled(): void
@@ -419,7 +377,7 @@ PHP);
         $expectation = $process->shouldReceive('run');
         $expectation->never();
 
-        $command = new ScenarioMakeCommand();
+        $command = new ScenarioMakeParameterCommand();
         $command->setLaravel($this->getLaravelMock());
 
         self::assertTrue($command->isHidden());

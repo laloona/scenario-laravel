@@ -15,6 +15,7 @@ use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Foundation\Application as IlluminateApplication;
 use Illuminate\Support\Facades\App;
 use Stateforge\Scenario\Core\Runtime\Application as CoreApplication;
+use Stateforge\Scenario\Core\Runtime\ApplicationExtension;
 use Stateforge\Scenario\Core\Runtime\Metadata\Handler\ApplyScenarioHandler;
 use Stateforge\Scenario\Core\Runtime\Metadata\Handler\RefreshDatabaseHandler;
 use Stateforge\Scenario\Core\Runtime\Metadata\HandlerRegistry;
@@ -22,21 +23,35 @@ use function define;
 use function defined;
 use const DIRECTORY_SEPARATOR;
 
-final class Application
+final class Application extends ApplicationExtension
 {
-    public function bootstrap(): void
+    public function prepare(): void
     {
         if (defined('SCENARIO_CLI_DISABLED') === false) {
             define('SCENARIO_CLI_DISABLED', true);
         }
 
-        // core kernel is not prepared, this file was loaded by file scan
         if (CoreApplication::config() === null) {
             return;
         }
 
+        CoreApplication::config()->addParameterDirectory(
+            'vendor' . DIRECTORY_SEPARATOR .
+            'stateforge' . DIRECTORY_SEPARATOR .
+            'scenario-laravel' . DIRECTORY_SEPARATOR .
+            'src' . DIRECTORY_SEPARATOR . 'Parameter',
+        );
+    }
+
+    public function boot(): void
+    {
+        if (defined('SCENARIO_CLI_DISABLED') === false
+            || CoreApplication::config() === null) {
+            return;
+        }
+
         /** @var IlluminateApplication $app */
-        $app = require CoreApplication::getRootDir() . DIRECTORY_SEPARATOR . 'bootstrap/app.php';
+        $app = require CoreApplication::getRootDir() . DIRECTORY_SEPARATOR . 'bootstrap' . DIRECTORY_SEPARATOR . 'app.php';
 
         /** @var Kernel $kernel */
         $kernel = $app->make(Kernel::class);

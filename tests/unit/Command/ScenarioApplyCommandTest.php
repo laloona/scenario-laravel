@@ -23,11 +23,11 @@ use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use Stateforge\Scenario\Core\Attribute\AsScenario;
 use Stateforge\Scenario\Core\Attribute\Parameter;
+use Stateforge\Scenario\Core\ParameterType;
 use Stateforge\Scenario\Core\Runtime\Application;
 use Stateforge\Scenario\Core\Runtime\Application\Configuration\Configuration;
 use Stateforge\Scenario\Core\Runtime\Exception\RegistryException;
 use Stateforge\Scenario\Core\Runtime\Metadata\ExecutionType;
-use Stateforge\Scenario\Core\Runtime\Metadata\ParameterType;
 use Stateforge\Scenario\Core\Runtime\ScenarioDefinition;
 use Stateforge\Scenario\Core\Runtime\ScenarioRegistry;
 use Stateforge\Scenario\Laravel\Command\ScenarioApplyCommand;
@@ -265,6 +265,85 @@ final class ScenarioApplyCommandTest extends TestCase
 
         self::assertSame(Command::SUCCESS, $tester->execute(['scenario' => 'unknown'], ['interactive' => true]));
         self::assertStringContainsString('Input was invalid, please try again.', $tester->getDisplay());
+    }
+
+    public function testExecuteRepeatsInputWhenRequiredParameterWasNotProvided(): void
+    {
+        $this->setUpInstalled(true, 2);
+        $this->basePathMock('/app/root');
+        $this->commandMocks();
+
+        $this->registerScenario([
+            new Parameter('myInt', ParameterType::Integer, required: true),
+        ]);
+
+        $process = $this->getProcessMock();
+        /** @var Expectation $expectation */
+        $expectation = $process->shouldReceive('run');
+        $expectation->once()
+            ->with(
+                [
+                    PHP_BINARY,
+                    'vendor' . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'scenario',
+                    'apply',
+                    ValidScenario::class,
+                    '--up',
+                    '--parameter=myInt=5',
+                    '--force',
+                    '--quiet',
+                ],
+                '/app/root',
+                Mockery::type(OutputStyle::class),
+            )
+            ->andReturn(true);
+
+        $command = new ScenarioApplyCommand();
+        $command->setLaravel($this->getLaravelMock());
+
+        $tester = new CommandTester($command);
+        $tester->setInputs(['0', '', '5']);
+
+        self::assertSame(Command::SUCCESS, $tester->execute(['scenario' => 'unknown'], ['interactive' => true]));
+        self::assertStringContainsString('Input was invalid, please try again.', $tester->getDisplay());
+    }
+
+    public function testExecuteSkipsOptionalParameterWhenNoInputWasProvided(): void
+    {
+        $this->setUpInstalled(true, 2);
+        $this->basePathMock('/app/root');
+        $this->commandMocks();
+
+        $this->registerScenario([
+            new Parameter('myInt', ParameterType::Integer, required: false),
+        ]);
+
+        $process = $this->getProcessMock();
+        /** @var Expectation $expectation */
+        $expectation = $process->shouldReceive('run');
+        $expectation->once()
+            ->with(
+                [
+                    PHP_BINARY,
+                    'vendor' . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'scenario',
+                    'apply',
+                    ValidScenario::class,
+                    '--up',
+                    '--force',
+                    '--quiet',
+                ],
+                '/app/root',
+                Mockery::type(OutputStyle::class),
+            )
+            ->andReturn(true);
+
+        $command = new ScenarioApplyCommand();
+        $command->setLaravel($this->getLaravelMock());
+
+        $tester = new CommandTester($command);
+        $tester->setInputs(['0', '']);
+
+        self::assertSame(Command::SUCCESS, $tester->execute(['scenario' => 'unknown'], ['interactive' => true]));
+        self::assertStringNotContainsString('Input was invalid, please try again.', $tester->getDisplay());
     }
 
     public function testExecuteRepeatsInputWhenRepeatableParameterValueIsInvalid(): void

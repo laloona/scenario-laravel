@@ -187,6 +187,46 @@ final class ScenarioInstallCommandTest extends TestCase
         self::assertStringContainsString('Scenario installation failed.', $tester->getDisplay());
     }
 
+    public function testExecuteShowsErrorWhenConfiguringPhpUnitFails(): void
+    {
+        $this->setUpInstallScenario(
+            scenarioXmlExistsAfterInstall: true,
+            scenarioDistExistsAfterInstall: true,
+        );
+
+        $process = $this->getProcessMock();
+        /** @var Expectation $expectation */
+        $expectation = $process->shouldReceive('run');
+        $expectation->once()
+            ->with(
+                [
+                    PHP_BINARY,
+                    'vendor' . DIRECTORY_SEPARATOR . 'bin' . DIRECTORY_SEPARATOR . 'scenario',
+                    'install',
+                    '--force',
+                    '--quiet',
+                ],
+                '/app',
+                null,
+            )
+            ->andReturn(true);
+
+        $configured = self::createMock(ConfiguredInterface::class);
+        $configured->expects(self::exactly(2))
+            ->method('isConfigured')
+            ->willReturn(false);
+
+        $command = new ScenarioInstallCommand($configured);
+        $command->setLaravel($this->getLaravelMock());
+
+        $tester = new CommandTester($command);
+        $tester->setInputs(['yes', 'yes']);
+
+        self::assertSame(Command::SUCCESS, $tester->execute([], ['interactive' => true]));
+        self::assertStringContainsString('Configuring PHPUnit failed.', $tester->getDisplay());
+        self::assertStringContainsString('Scenario was successfully installed.', $tester->getDisplay());
+    }
+
     public function testExecuteCommandReturnsFailureWhenScenarioIsInstalled(): void
     {
         $this->setUpInstalled(true, 3);
@@ -301,8 +341,8 @@ final class ScenarioInstallCommandTest extends TestCase
 
     private function resetApplicationBootState(): void
     {
-        $property = (new ReflectionClass(Application::class))->getProperty('isBooted');
-        $property->setValue(null, false);
+        $property = (new ReflectionClass(Application::class))->getProperty('extension');
+        $property->setValue(null, null);
     }
 
     private function setScenarioConfiguration(?Configuration $configuration): void

@@ -1,0 +1,25 @@
+<?php declare(strict_types=1);
+
+namespace Stateforge\Suite\%nameSpace%;
+
+use Stateforge\Scenario\Core\Attribute\AsParameterType;
+use Stateforge\Scenario\Core\Runtime\Metadata\ValueType\BooleanType;
+use Stateforge\Scenario\Core\Runtime\Metadata\ValueType\FloatType;
+use Stateforge\Scenario\Core\Runtime\Metadata\ValueType\IntegerType;
+use Stateforge\Scenario\Core\Runtime\Metadata\ValueType\StringType;
+use Stateforge\Scenario\Laravel\ParameterTypeDefinition;
+use Symfony\Component\Validator\Constraint;
+
+#[AsParameterType('some usefull description')]
+final class %className% extends ParameterTypeDefinition
+{
+    protected function rules(): array
+    {
+        // this rules() is auto-generated, please modify it
+    }
+
+    protected function valueType(mixed $value): BooleanType|FloatType|IntegerType|StringType
+    {
+        // this valueType() is auto-generated, please modify it
+    }
+}

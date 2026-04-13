@@ -530,14 +530,14 @@ PHP);
     {
         $reflection = new ReflectionClass(Application::class);
 
+        $extension = $reflection->getProperty('extension');
+        $extension->setValue(null, null);
+
         $rootDir = $reflection->getProperty('rootDir');
         $rootDir->setValue(null, null);
 
         $configuration = $reflection->getProperty('configuration');
         $configuration->setValue(null, null);
-
-        $isBooted = $reflection->getProperty('isBooted');
-        $isBooted->setValue(null, false);
     }
 
     private function resetScenarioRegistry(): void

@@ -20,6 +20,7 @@ use Stateforge\Scenario\Laravel\Command\ScenarioDebugCommand;
 use Stateforge\Scenario\Laravel\Command\ScenarioInstallCommand;
 use Stateforge\Scenario\Laravel\Command\ScenarioListCommand;
 use Stateforge\Scenario\Laravel\Command\ScenarioMakeCommand;
+use Stateforge\Scenario\Laravel\Runtime\Application;
 use Stateforge\Scenario\Laravel\Runtime\Consumer;
 use Stateforge\Scenario\Laravel\Runtime\ProcessInterface;
 use Stateforge\Scenario\Laravel\Runtime\ProcessRunner;
@@ -46,6 +47,8 @@ final class ScenarioLaravelServiceProvider extends ServiceProvider
         $this->app->singleton(ConfiguredInterface::class, Configured::class);
         $this->app->singleton(Consumer::class, Consumer::class);
         $this->app->singleton(ProcessInterface::class, ProcessRunner::class);
+
+        (new Application())->bootstrap();
     }
 
     public function boot(): void

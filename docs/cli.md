@@ -55,7 +55,8 @@ Use this to:
   - verify scenario resolution
   - inspect applied scenarios
   - debug execution flow
-- __scenario:make__: Generate a new scenario.
+- __scenario:make:scenario__: Generate a new scenario.
+- __scenario:make:parameter__: Generate a new parameter type.
 - __scenario:refresh__: Execute database or environment refresh logic. Available options (optional):
 ```bash
 --connection=<name>
