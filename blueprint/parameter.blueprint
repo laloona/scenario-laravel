@@ -8,7 +8,6 @@ use Stateforge\Scenario\Core\Runtime\Metadata\ValueType\FloatType;
 use Stateforge\Scenario\Core\Runtime\Metadata\ValueType\IntegerType;
 use Stateforge\Scenario\Core\Runtime\Metadata\ValueType\StringType;
 use Stateforge\Scenario\Laravel\ParameterTypeDefinition;
-use Symfony\Component\Validator\Constraint;
 
 #[AsParameterType('some usefull description')]
 final class %className% extends ParameterTypeDefinition

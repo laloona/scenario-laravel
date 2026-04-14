@@ -19,7 +19,9 @@ use Stateforge\Scenario\Laravel\Command\ScenarioApplyCommand;
 use Stateforge\Scenario\Laravel\Command\ScenarioDebugCommand;
 use Stateforge\Scenario\Laravel\Command\ScenarioInstallCommand;
 use Stateforge\Scenario\Laravel\Command\ScenarioListCommand;
-use Stateforge\Scenario\Laravel\Command\ScenarioMakeCommand;
+use Stateforge\Scenario\Laravel\Command\ScenarioMakeParameterCommand;
+use Stateforge\Scenario\Laravel\Command\ScenarioMakeScenarioCommand;
+use Stateforge\Scenario\Laravel\Command\ScenarioParameterCommand;
 use Stateforge\Scenario\Laravel\Runtime\Application;
 use Stateforge\Scenario\Laravel\Runtime\Consumer;
 use Stateforge\Scenario\Laravel\Runtime\ProcessInterface;
@@ -72,7 +74,9 @@ final class ScenarioLaravelServiceProvider extends ServiceProvider
             ScenarioApplyCommand::class,
             ScenarioDebugCommand::class,
             ScenarioListCommand::class,
-            ScenarioMakeCommand::class,
+            ScenarioMakeScenarioCommand::class,
+            ScenarioMakeParameterCommand::class,
+            ScenarioParameterCommand::class,
         ]);
     }
 }
