@@ -24,7 +24,6 @@ use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use ReflectionClass;
 use SplFileInfo;
-use Stateforge\Scenario\Core\Attribute\ApplyScenario;
 use Stateforge\Scenario\Core\Attribute\AsScenario;
 use Stateforge\Scenario\Core\PHPUnit\Finder\ScenarioTestFinder;
 use Stateforge\Scenario\Core\Runtime\Application;
@@ -49,12 +48,7 @@ use const DIRECTORY_SEPARATOR;
 use const PHP_BINARY;
 
 #[CoversClass(ScenarioDebugCommand::class)]
-#[UsesClass(Application::class)]
-#[UsesClass(ApplyScenario::class)]
-#[UsesClass(AsScenario::class)]
 #[UsesClass(ScenarioCommand::class)]
-#[UsesClass(ScenarioDefinition::class)]
-#[UsesClass(ScenarioRegistry::class)]
 #[Group('command')]
 #[Medium]
 final class ScenarioDebugCommandTest extends TestCase

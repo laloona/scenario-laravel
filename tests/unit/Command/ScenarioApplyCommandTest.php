@@ -26,8 +26,6 @@ use Stateforge\Scenario\Core\Attribute\Parameter;
 use Stateforge\Scenario\Core\ParameterType;
 use Stateforge\Scenario\Core\Runtime\Application;
 use Stateforge\Scenario\Core\Runtime\Application\Configuration\Configuration;
-use Stateforge\Scenario\Core\Runtime\Exception\RegistryException;
-use Stateforge\Scenario\Core\Runtime\Metadata\ExecutionType;
 use Stateforge\Scenario\Core\Runtime\ScenarioDefinition;
 use Stateforge\Scenario\Core\Runtime\ScenarioRegistry;
 use Stateforge\Scenario\Laravel\Command\ScenarioApplyCommand;
@@ -40,13 +38,7 @@ use const DIRECTORY_SEPARATOR;
 use const PHP_BINARY;
 
 #[CoversClass(ScenarioApplyCommand::class)]
-#[UsesClass(ExecutionType::class)]
-#[UsesClass(Parameter::class)]
-#[UsesClass(ParameterType::class)]
-#[UsesClass(RegistryException::class)]
 #[UsesClass(ScenarioCommand::class)]
-#[UsesClass(ScenarioDefinition::class)]
-#[UsesClass(ScenarioRegistry::class)]
 #[Group('command')]
 #[Medium]
 final class ScenarioApplyCommandTest extends TestCase

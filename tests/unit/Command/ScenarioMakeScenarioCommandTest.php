@@ -35,10 +35,6 @@ use Symfony\Component\Console\Tester\CommandTester;
 #[CoversClass(ScenarioMakeScenarioCommand::class)]
 #[CoversClass(ScenarioMakeCommand::class)]
 #[UsesClass(ScenarioCommand::class)]
-#[UsesClass(Application::class)]
-#[UsesClass(DefaultConfiguration::class)]
-#[UsesClass(LoadedConfiguration::class)]
-#[UsesClass(SuiteValue::class)]
 #[Group('command')]
 #[Medium]
 final class ScenarioMakeScenarioCommandTest extends TestCase
