@@ -11,6 +11,8 @@
 ### Changed
 - Renamed `scenario:make` to `scenario:make:scenario`.
 - Updated generator commands to separate scenario and parameter type creation.
+- Moved `ParameterType` from `Stateforge\Scenario\Core\Metadata\Parameter\ParameterType`
+  to `Stateforge\Scenario\Core\ParameterType`.
 
 ### Notes
 - Requires Scenario Core ^1.1.
