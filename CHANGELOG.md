@@ -17,6 +17,11 @@
 ### Notes
 - Requires Scenario Core ^1.1.
 
+## [1.0.1] - 2026-04-12
+
+### Added
+- added logo and badges and minor corrections in docs
+
 ## [1.0.0] - 2026-04-06
 
 ### Added
