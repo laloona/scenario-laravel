@@ -17,7 +17,6 @@ use Mockery;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Small;
-use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use Stateforge\Scenario\Core\Attribute\RefreshDatabase;
@@ -28,11 +27,6 @@ use Stateforge\Scenario\Core\Runtime\Application\Configuration\Value\ConnectionV
 use Stateforge\Scenario\Laravel\Runtime\DatabaseRefreshExecutor;
 
 #[CoversClass(DatabaseRefreshExecutor::class)]
-#[UsesClass(RefreshDatabase::class)]
-#[UsesClass(Application::class)]
-#[UsesClass(DefaultConfiguration::class)]
-#[UsesClass(LoadedConfiguration::class)]
-#[UsesClass(ConnectionValue::class)]
 #[Group('runtime')]
 #[Small]
 final class DatabaseRefreshExecutorTest extends TestCase

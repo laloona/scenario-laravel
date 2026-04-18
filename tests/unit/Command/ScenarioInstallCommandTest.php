@@ -37,9 +37,6 @@ use const DIRECTORY_SEPARATOR;
 use const PHP_BINARY;
 
 #[CoversClass(ScenarioInstallCommand::class)]
-#[UsesClass(Application::class)]
-#[UsesClass(DefaultConfiguration::class)]
-#[UsesClass(LoadedConfiguration::class)]
 #[UsesClass(ScenarioCommand::class)]
 #[Group('command')]
 #[Medium]
