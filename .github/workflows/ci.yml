@@ -135,10 +135,11 @@ jobs:
         uses: actions/cache@v5
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-php-${{ matrix.php }}-${{ matrix.dependencies }}-composer-${{ hashFiles('**/composer.json') }}
+          key: ${{ runner.os }}-branch-${{ matrix.branch }}-php-${{ matrix.php }}-${{ matrix.dependencies }}-composer-${{ hashFiles('**/composer.json') }}
           restore-keys: |
-            ${{ runner.os }}-php-${{ matrix.php }}-${{ matrix.dependencies }}-composer-
-            ${{ runner.os }}-php-${{ matrix.php }}-composer-
+            ${{ runner.os }}-branch-${{ matrix.branch }}-php-${{ matrix.php }}-${{ matrix.dependencies }}-composer-
+            ${{ runner.os }}-branch-${{ matrix.branch }}-php-${{ matrix.php }}-composer-
+            ${{ runner.os }}-branch-${{ matrix.branch }}-composer-
             ${{ runner.os }}-composer-
 
       - name: Validate composer.json
