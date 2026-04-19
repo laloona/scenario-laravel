@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.1.0] - 2026-04-xx
+## [1.1.0] - 2026-04-19
 
 ### Added
 - Added built-in Laravel Validator based parameter types for common input formats.
