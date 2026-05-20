@@ -13,7 +13,7 @@
   ],
   "require": {
     "php": ">=8.2",
-    "stateforge/scenario-core": "^1.0",
+    "stateforge/scenario-core": "~1.0.0",
     "laravel/framework": "^12.0",
     "symfony/process": "^7.0"
   },
