@@ -4,6 +4,9 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   cs:
     name: CS (PHP ${{ matrix.php }})
