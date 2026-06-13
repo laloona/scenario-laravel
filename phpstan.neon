@@ -11,6 +11,7 @@ parameters:
     reportUnmatchedIgnoredErrors: true
     checkTooWideReturnTypesInProtectedAndPublicMethods: true
     reportAlwaysTrueInLastCondition: true
+    reportPossiblyNonexistentConstantArrayOffset: true
 
     type_coverage:
         declare: 100
