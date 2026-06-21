@@ -44,6 +44,7 @@ final class NegativeFloatTypeTest extends TestCase
         $type = new NegativeFloatType();
 
         self::assertTrue($type->valid(-1.5));
+        self::assertTrue($type->valid('-1.5'));
         self::assertSame(-1.5, $type->cast(-1.5));
         self::assertSame('-1.5', $type->asString(-1.5));
     }
@@ -53,7 +54,16 @@ final class NegativeFloatTypeTest extends TestCase
         $type = new NegativeFloatType();
 
         self::assertFalse($type->valid(0.0));
+        self::assertFalse($type->valid('0.0'));
+        self::assertFalse($type->valid(1.0));
+        self::assertFalse($type->valid('1.0'));
         self::assertNull($type->cast(0.0));
         self::assertNull($type->asString(0.0));
+        self::assertNull($type->cast('0.0'));
+        self::assertNull($type->asString('0.0'));
+        self::assertNull($type->cast(1.0));
+        self::assertNull($type->asString(1.0));
+        self::assertNull($type->cast('1.0'));
+        self::assertNull($type->asString('1.0'));
     }
 }

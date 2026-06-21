@@ -44,8 +44,11 @@ final class PositiveInFloatTypeTest extends TestCase
         $type = new PositiveInFloatType();
 
         self::assertTrue($type->valid(1.5));
+        self::assertTrue($type->valid('1.5'));
         self::assertSame(1.5, $type->cast(1.5));
         self::assertSame('1.5', $type->asString(1.5));
+        self::assertSame(1.5, $type->cast('1.5'));
+        self::assertSame('1.5', $type->asString('1.5'));
     }
 
     public function testValidRejectsZero(): void
@@ -53,7 +56,16 @@ final class PositiveInFloatTypeTest extends TestCase
         $type = new PositiveInFloatType();
 
         self::assertFalse($type->valid(0.0));
+        self::assertFalse($type->valid('0.0'));
+        self::assertFalse($type->valid(-1.5));
+        self::assertFalse($type->valid('-1.5'));
         self::assertNull($type->cast(0.0));
         self::assertNull($type->asString(0.0));
+        self::assertNull($type->cast('0.0'));
+        self::assertNull($type->asString('0.0'));
+        self::assertNull($type->cast(-1.5));
+        self::assertNull($type->asString(-1.5));
+        self::assertNull($type->cast('-1.5'));
+        self::assertNull($type->asString('-1.5'));
     }
 }

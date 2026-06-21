@@ -44,6 +44,7 @@ final class NegativeIntegerTypeTest extends TestCase
         $type = new NegativeIntegerType();
 
         self::assertTrue($type->valid(-1));
+        self::assertTrue($type->valid('-1'));
         self::assertSame(-1, $type->cast(-1));
         self::assertSame('-1', $type->asString(-1));
     }
@@ -53,7 +54,16 @@ final class NegativeIntegerTypeTest extends TestCase
         $type = new NegativeIntegerType();
 
         self::assertFalse($type->valid(0));
+        self::assertFalse($type->valid('0'));
+        self::assertFalse($type->valid(1));
+        self::assertFalse($type->valid('1'));
         self::assertNull($type->cast(0));
         self::assertNull($type->asString(0));
+        self::assertNull($type->cast('0'));
+        self::assertNull($type->asString('0'));
+        self::assertNull($type->cast(1));
+        self::assertNull($type->asString(1));
+        self::assertNull($type->cast('1'));
+        self::assertNull($type->asString('1'));
     }
 }
