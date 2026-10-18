@@ -56,7 +56,6 @@ final class ScenarioInstallCommandTest extends TestCase
     {
         $this->tearDownFacades();
         $this->setScenarioConfiguration(null);
-        $this->resetApplicationBootState();
     }
 
     public function testCommandIsConfigured(): void
@@ -252,7 +251,6 @@ final class ScenarioInstallCommandTest extends TestCase
         $this->basePathMock('/app');
         $this->commandMocks();
 
-        $bootstrapInstalled = false;
         $configInstalled = false;
         $scenarioXmlCalls = 0;
         $scenarioDistXmlCalls = 0;
@@ -261,7 +259,6 @@ final class ScenarioInstallCommandTest extends TestCase
         $exists = $filesystem->shouldReceive('exists');
         $exists->withArgs(fn (string $path): bool => true)
             ->andReturnUsing(function (string $path) use (
-                &$bootstrapInstalled,
                 &$configInstalled,
                 &$scenarioXmlCalls,
                 &$scenarioDistXmlCalls,
@@ -284,16 +281,8 @@ final class ScenarioInstallCommandTest extends TestCase
                     };
                 }
 
-                if ($this->pathEndsWith($path, 'vendor/stateforge/scenario-laravel/blueprint/bootstrap.blueprint')) {
-                    return true;
-                }
-
                 if ($this->pathEndsWith($path, 'vendor/stateforge/scenario-laravel/blueprint/config.blueprint')) {
                     return true;
-                }
-
-                if ($this->pathEndsWith($path, 'scenario/bootstrap.php')) {
-                    return $bootstrapInstalled;
                 }
 
                 return false;
@@ -301,19 +290,10 @@ final class ScenarioInstallCommandTest extends TestCase
 
         /** @var Expectation $copy */
         $copy = $filesystem->shouldReceive('copy');
-        $copy->twice()
+        $copy->once()
             ->withArgs(function (string $source, string $target) use (
-                &$bootstrapInstalled,
                 &$configInstalled,
             ): bool {
-                if (
-                    $this->pathEndsWith($source, 'vendor/stateforge/scenario-laravel/blueprint/bootstrap.blueprint')
-                    && $this->pathEndsWith($target, 'scenario/bootstrap.php')
-                ) {
-                    $bootstrapInstalled = true;
-                    return true;
-                }
-
                 if (
                     $this->pathEndsWith($source, 'vendor/stateforge/scenario-laravel/blueprint/config.blueprint')
                     && $this->pathEndsWith($target, 'scenario.dist.xml')
@@ -334,12 +314,6 @@ final class ScenarioInstallCommandTest extends TestCase
         $ensureMain = $filesystem->shouldReceive('ensureDirectoryExists');
         $ensureMain->once()
             ->withArgs(fn (string $path): bool => $this->pathEndsWith($path, 'scenario/main'));
-    }
-
-    private function resetApplicationBootState(): void
-    {
-        $property = (new ReflectionClass(Application::class))->getProperty('extension');
-        $property->setValue(null, null);
     }
 
     private function setScenarioConfiguration(?Configuration $configuration): void

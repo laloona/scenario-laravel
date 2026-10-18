@@ -23,7 +23,7 @@ use function define;
 use function defined;
 use const DIRECTORY_SEPARATOR;
 
-final class Application extends ApplicationExtension
+final class Application implements ApplicationExtension
 {
     public function prepare(): void
     {

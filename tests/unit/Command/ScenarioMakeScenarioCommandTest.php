@@ -48,7 +48,7 @@ final class ScenarioMakeScenarioCommandTest extends TestCase
         $this->setUpFacades();
         $configuration = new LoadedConfiguration(new DefaultConfiguration());
         $configuration->setSuites([
-            'main' => new SuiteValue('main', 'scenario/main'),
+            'main' => new SuiteValue('main', 'main', 'scenario/main'),
         ]);
         $this->setScenarioConfiguration($configuration);
     }
@@ -313,8 +313,8 @@ PHP);
 
         $configuration = new LoadedConfiguration(new DefaultConfiguration());
         $configuration->setSuites([
-            'main' => new SuiteValue('main', 'scenario/main'),
-            'admin' => new SuiteValue('admin', 'scenario/admin/user'),
+            'main' => new SuiteValue('main', 'main', 'scenario/main'),
+            'admin' => new SuiteValue('admin', 'admoin', 'scenario/admin/user'),
         ]);
         $this->setScenarioConfiguration($configuration);
 
@@ -380,8 +380,8 @@ PHP);
 
         $configuration = new LoadedConfiguration(new DefaultConfiguration());
         $configuration->setSuites([
-            'main' => new SuiteValue('main', 'scenario/main'),
-            'admin' => new SuiteValue('admin', 'scenario/admin/user'),
+            'main' => new SuiteValue('main', 'main', 'scenario/main'),
+            'admin' => new SuiteValue('admin', 'admin', 'scenario/admin/user'),
         ]);
         $this->setScenarioConfiguration($configuration);
 

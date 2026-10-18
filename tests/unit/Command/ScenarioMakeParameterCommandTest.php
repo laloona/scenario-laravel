@@ -48,7 +48,7 @@ final class ScenarioMakeParameterCommandTest extends TestCase
         $this->setUpFacades();
         $configuration = new LoadedConfiguration(new DefaultConfiguration());
         $configuration->setSuites([
-            'main' => new SuiteValue('main', 'scenario/main'),
+            'main' => new SuiteValue('main', 'main', 'scenario/main'),
         ]);
         $this->setScenarioConfiguration($configuration);
     }

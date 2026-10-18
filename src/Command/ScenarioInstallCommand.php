@@ -43,11 +43,6 @@ final class ScenarioInstallCommand extends ScenarioCommand
             App::basePath('scenario'),
         );
 
-        $this->copyBlueprint(
-            'bootstrap.blueprint',
-            App::basePath('scenario' . DIRECTORY_SEPARATOR . 'bootstrap.php'),
-        );
-
         File::ensureDirectoryExists(
             App::basePath('scenario' . DIRECTORY_SEPARATOR . 'main'),
         );

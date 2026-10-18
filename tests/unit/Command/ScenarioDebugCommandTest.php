@@ -524,9 +524,6 @@ PHP);
     {
         $reflection = new ReflectionClass(Application::class);
 
-        $extension = $reflection->getProperty('extension');
-        $extension->setValue(null, null);
-
         $rootDir = $reflection->getProperty('rootDir');
         $rootDir->setValue(null, null);
 
