@@ -25,7 +25,7 @@ use const DIRECTORY_SEPARATOR;
 
 final class Application implements ApplicationExtension
 {
-    public function prepare(): void
+    public function prepare(CoreApplication $application): void
     {
         if (defined('SCENARIO_CLI_DISABLED') === false) {
             define('SCENARIO_CLI_DISABLED', true);
@@ -43,7 +43,7 @@ final class Application implements ApplicationExtension
         );
     }
 
-    public function boot(): void
+    public function boot(CoreApplication $application): void
     {
         if (defined('SCENARIO_CLI_DISABLED') === false
             || CoreApplication::config() === null) {

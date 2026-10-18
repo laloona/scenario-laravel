@@ -48,14 +48,14 @@ final class ApplicationTest extends TestCase
 
         $this->setCoreConfiguration($configuration);
 
-        (new Application())->prepare();
+        (new Application())->prepare(new CoreApplication());
     }
 
     public function testPrepareDoesNothingWhenCoreConfigurationWasNotLoaded(): void
     {
         $this->setCoreConfiguration(null);
 
-        (new Application())->prepare();
+        (new Application())->prepare(new CoreApplication());
 
         self::assertNull(CoreApplication::config());
     }
@@ -65,7 +65,7 @@ final class ApplicationTest extends TestCase
     {
         $this->setCoreConfiguration(self::createStub(Configuration::class));
 
-        (new Application())->boot();
+        (new Application())->boot(new CoreApplication());
 
         self::assertFalse(defined('SCENARIO_CLI_DISABLED'));
     }
@@ -78,7 +78,7 @@ final class ApplicationTest extends TestCase
 
         $this->setCoreConfiguration(null);
 
-        (new Application())->boot();
+        (new Application())->boot(new CoreApplication());
 
         self::assertNull(CoreApplication::config());
     }
