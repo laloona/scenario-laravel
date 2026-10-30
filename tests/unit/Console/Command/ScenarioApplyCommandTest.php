@@ -16,6 +16,7 @@ use Illuminate\Console\OutputStyle;
 use Mockery;
 use Mockery\Expectation;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Medium;
 use PHPUnit\Framework\Attributes\UsesClass;
@@ -65,6 +66,7 @@ final class ScenarioApplyCommandTest extends TestCase
         $this->setUpInstalled(true, 2);
         $command = new ScenarioApplyCommand();
 
+        self::assertTrue($command->getDefinition()->hasOption('suite'));
         self::assertSame('scenario:apply', $command->getName());
         self::assertSame(
             'Apply a given scenario, use --up or --down to choose how the scenario should be applied - should only be used for local/develop/testing',
@@ -122,7 +124,30 @@ final class ScenarioApplyCommandTest extends TestCase
         self::assertStringContainsString('No scenarios were found, please create one.', $tester->getDisplay());
     }
 
-    public function testExecuteRunsShellForDirectScenarioWithParametersAuditAndDown(): void
+    public function testExecuteFailsWhenSuiteHasNoMatchingScenarios(): void
+    {
+        $this->setUpInstalled(true, 2);
+        $this->basePathMock('/app/root');
+        $this->commandMocks();
+
+        $this->registerScenario();
+
+        $process = $this->getProcessMock();
+        /** @var Expectation $expectation */
+        $expectation = $process->shouldReceive('run');
+        $expectation->never();
+
+        $command = new ScenarioApplyCommand();
+        $command->setLaravel($this->getLaravelMock());
+
+        $tester = new CommandTester($command);
+
+        self::assertSame(Command::FAILURE, $tester->execute(['--suite' => 'unknown']));
+        self::assertStringContainsString('No scenarios were found, please create one.', $tester->getDisplay());
+    }
+
+    #[DataProvider('suiteOptions')]
+    public function testExecuteRunsShellForDirectScenarioWithParametersAuditAndDown(string|bool|null $suite): void
     {
         $this->setUpInstalled(true, 2);
         $this->basePathMock('/app/root');
@@ -158,6 +183,7 @@ final class ScenarioApplyCommandTest extends TestCase
         $tester = new CommandTester($command);
 
         self::assertSame(Command::SUCCESS, $tester->execute([
+            '--suite' => $suite,
             'scenario' => 'valid',
             '--down' => true,
             '--audit' => true,
@@ -431,6 +457,16 @@ final class ScenarioApplyCommandTest extends TestCase
 
         self::assertTrue($command->isHidden());
         self::assertSame(Command::FAILURE, (new CommandTester($command))->execute([]));
+    }
+
+    /**
+     * @return iterable<string, array{string|bool|null}>
+     */
+    public static function suiteOptions(): iterable
+    {
+        yield 'without filter' => [null];
+        yield 'matching suite' => ['main'];
+        yield 'non-string option is ignored' => [true];
     }
 
     /**

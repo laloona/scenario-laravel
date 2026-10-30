@@ -12,6 +12,7 @@
 namespace Stateforge\Scenario\Laravel\Console\Command;
 
 use Illuminate\Support\Facades\App;
+use Stateforge\Scenario\Core\Console\ScenarioSuiteFilter;
 use Stateforge\Scenario\Core\Runtime\Application;
 use Stateforge\Scenario\Core\Runtime\Exception\RegistryException;
 use Stateforge\Scenario\Core\Runtime\Metadata\ExecutionType;
@@ -31,6 +32,7 @@ final class ScenarioApplyCommand extends ScenarioCommand
 {
     protected $signature = '
         scenario:apply
+        {--suite= : Filters to given suite}
         {scenario? : Scenario name}
         {--parameter=* : Scenario parameters in name=value format (repeatable)}
         {--up : Apply up method (default)}
@@ -49,7 +51,14 @@ final class ScenarioApplyCommand extends ScenarioCommand
         }
 
         (new Application())->prepare();
-        $scenarioDefinitions = ScenarioRegistry::getInstance()->all();
+
+        $suite = $this->option('suite');
+        if ($suite !== null
+            && is_string($suite) === false) {
+            $suite = null;
+        }
+
+        $scenarioDefinitions = (new ScenarioSuiteFilter())->filter(ScenarioRegistry::getInstance()->all(), $suite);
         if (count($scenarioDefinitions) === 0) {
             $this->error('No scenarios were found, please create one.');
             return self::FAILURE;

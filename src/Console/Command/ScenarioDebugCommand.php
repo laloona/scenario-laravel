@@ -12,6 +12,7 @@
 namespace Stateforge\Scenario\Laravel\Console\Command;
 
 use Illuminate\Support\Facades\App;
+use Stateforge\Scenario\Core\Console\ScenarioSuiteFilter;
 use Stateforge\Scenario\Core\PHPUnit\Finder\ScenarioTestFinder;
 use Stateforge\Scenario\Core\Runtime\Application;
 use Stateforge\Scenario\Core\Runtime\ScenarioDefinition;
@@ -28,7 +29,7 @@ use const PHP_BINARY;
 
 final class ScenarioDebugCommand extends ScenarioCommand
 {
-    protected $signature = 'scenario:debug';
+    protected $signature = 'scenario:debug {--suite= : Filters to given suite}';
 
     protected $description = 'Debug a given scenario or unit test - should only be used for local/develop/testing';
 
@@ -36,7 +37,13 @@ final class ScenarioDebugCommand extends ScenarioCommand
     {
         (new Application())->prepare();
 
-        $scenarioDefinitions = ScenarioRegistry::getInstance()->all();
+        $suite = $this->option('suite');
+        if ($suite !== null
+            && is_string($suite) === false) {
+            $suite = null;
+        }
+
+        $scenarioDefinitions = (new ScenarioSuiteFilter())->filter(ScenarioRegistry::getInstance()->all(), $suite);
         $testClasses = (new ScenarioTestFinder())->all();
 
         $type = $this->getSelectedType($scenarioDefinitions, $testClasses);

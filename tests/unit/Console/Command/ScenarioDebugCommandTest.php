@@ -16,6 +16,7 @@ use Illuminate\Console\OutputStyle;
 use Mockery;
 use Mockery\Expectation;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Medium;
 use PHPUnit\Framework\Attributes\UsesClass;
@@ -95,6 +96,7 @@ XML
         $this->setUpInstalled(true, 2);
         $command = new ScenarioDebugCommand();
 
+        self::assertTrue($command->getDefinition()->hasOption('suite'));
         self::assertSame('scenario:debug', $command->getName());
         self::assertSame(
             'Debug a given scenario or unit test - should only be used for local/develop/testing',
@@ -103,7 +105,8 @@ XML
         self::assertFalse($command->isHidden());
     }
 
-    public function testExecuteCommandRunsDebugForScenario(): void
+    #[DataProvider('suiteOptions')]
+    public function testExecuteCommandRunsDebugForScenario(string|bool|null $suite): void
     {
         $this->setUpInstalled(true, 2);
         $this->basePathMock('/app/root');
@@ -140,7 +143,7 @@ XML
         $tester = new CommandTester($command);
         $tester->setInputs(['0']);
 
-        self::assertSame(Command::SUCCESS, $tester->execute([]));
+        self::assertSame(Command::SUCCESS, $tester->execute(['--suite' => $suite]));
     }
 
     public function testExecuteCommandRunsDebugForFoundUnitTestMethod(): void
@@ -211,6 +214,36 @@ PHP);
         $tester = new CommandTester($command);
 
         self::assertSame(Command::FAILURE, $tester->execute([]));
+        self::assertStringContainsString(
+            'No scenarios or unit tests were found, please create one.',
+            $tester->getDisplay(),
+        );
+    }
+
+    public function testExecuteFailsWhenSuiteHasNoMatchingScenarios(): void
+    {
+        $this->setUpInstalled(true, 2);
+        $this->basePathMock('/app/root');
+        $this->commandMocks();
+
+        ScenarioRegistry::getInstance()->register(new ScenarioDefinition(
+            'main',
+            ValidScenario::class,
+            new AsScenario('valid'),
+            [],
+        ));
+
+        $command = new ScenarioDebugCommand();
+        $command->setLaravel($this->getLaravelMock());
+
+        $process = $this->getProcessMock();
+        /** @var Expectation $expectation */
+        $expectation = $process->shouldReceive('run');
+        $expectation->never();
+
+        $tester = new CommandTester($command);
+
+        self::assertSame(Command::FAILURE, $tester->execute(['--suite' => 'unknown']));
         self::assertStringContainsString(
             'No scenarios or unit tests were found, please create one.',
             $tester->getDisplay(),
@@ -486,6 +519,16 @@ PHP);
 
         self::assertTrue($command->isHidden());
         self::assertSame(Command::FAILURE, (new CommandTester($command))->execute([]));
+    }
+
+    /**
+     * @return iterable<string, array{string|bool|null}>
+     */
+    public static function suiteOptions(): iterable
+    {
+        yield 'without filter' => [null];
+        yield 'matching suite' => ['main'];
+        yield 'non-string option is ignored' => [true];
     }
 
     private function createRootDir(): void
