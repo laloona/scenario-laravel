@@ -26,7 +26,7 @@
   },
   "require": {
     "php": ">=8.2",
-    "stateforge/scenario-core": "~1.2-dev",
+    "stateforge/scenario-core": "~1.2",
     "laravel/framework": "^12.0",
     "symfony/process": "^7.0"
   },
@@ -64,7 +64,7 @@
       ]
     },
     "branch-alias": {
-      "dev-main": "1.2-dev"
+      "dev-main": "1.3-dev"
     }
   }
 }
