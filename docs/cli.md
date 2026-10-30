@@ -34,6 +34,7 @@ php artisan list scenario
 - __scenario:apply__: Apply a scenario. Argument (optional): `scenario`<br>
   Available options (optional):
 ```bash
+--suite=<name>
 --up       Apply the scenario (default)
 --down     Revert the scenario
 --audit    Print out the audit
@@ -51,6 +52,10 @@ Please insert value for string parameter "email" (required)
 >
 ```
 - __scenario:debug__: Inspect a scenario or test. Arguments (optional): `class method`<br>
+  Available options (optional):
+```bash
+--suite=<name>
+```
 Use this to:
   - verify scenario resolution
   - inspect applied scenarios

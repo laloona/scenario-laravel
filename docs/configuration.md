@@ -35,7 +35,6 @@ Projects may copy this file to `scenario.xml` for local customization.
 ```xml
 <scenario xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:noNamespaceSchemaLocation="vendor/stateforge/scenario-core/xsd/scenario.xsd"
-          bootstrap="scenario/bootstrap.php"
           cacheDirectory=".scenario.cache"
           parameterDirectory="scenario/parameter"
 >
@@ -48,6 +47,10 @@ Projects may copy this file to `scenario.xml` for local customization.
             <directory>scenario/main</directory>
         </suite>
     </suites>
+
+    <extensions>
+        <bootstrap class="Stateforge\Scenario\Laravel\Extension"/>
+    </extensions>
 </scenario>
 ```
 
@@ -59,16 +62,6 @@ Projects may copy this file to `scenario.xml` for local customization.
 This is the root element of the configuration.
 
 #### Attributes
-##### bootstrap
-```xml
-bootstrap="scenario/bootstrap.php"
-```
-The bootstrap file is created automatically by `scenario:install`.
-
-It is loaded during Scenario startup and is required by the Laravel adapter to register the Laravel application extension.
-
-In Laravel projects, this file should usually be kept as generated unless custom bootstrap logic is needed.
-
 ##### cacheDirectory
 ```xml
 cacheDirectory=".scenario.cache"
@@ -85,16 +78,52 @@ Directory containing custom parameter type classes.
 
 All compatible parameter types in this directory are discovered automatically.
 
+### Extensions
+The `<extensions>` element registers framework adapters and custom initialization logic.
+Place it after `<suites>` and keep the Laravel adapter registered:
+
+```xml
+<extensions>
+    <bootstrap class="Stateforge\Scenario\Laravel\Extension" />
+</extensions>
+```
+
+The adapter extension connects Scenario Core to Laravel's application bootstrap and
+registers the framework-specific scenario and database refresh handlers.
+
+Each `<bootstrap>` element requires a `class` attribute naming an autoloadable class
+that implements `Stateforge\Scenario\Core\Extension`. Scenario instantiates the class
+without constructor arguments. The element has no text content.
+
+You can add custom extensions alongside the adapter:
+
+```xml
+<extensions>
+    <bootstrap class="Stateforge\Scenario\Laravel\Extension" />
+    <bootstrap class="App\Scenario\Extension" />
+</extensions>
+```
+
+For custom extensions, `application()` returns an
+`Stateforge\Scenario\Core\Runtime\ApplicationExtension` or `null`.
+Its `prepare(Application $application)` hook runs before parameter types and scenarios
+are loaded; its `boot(Application $application)` hook runs during Scenario application bootstrap.
+
+The `cli()` method returns a `Stateforge\Scenario\Core\Console\CliApplicationExtension`
+or `null`. Its `boot(CliApplication $cli)` hook can register commands for Scenario Core's
+`vendor/bin/scenario` CLI. Framework console commands are registered through Laravel's
+own command integration.
+
 ### Suites
 Suites organize scenario classes into logical groups.
 
 Example:
 ```xml
 <suites>
-    <suite name="Main Scenario Suite">
+    <suite name="main" description="Main Scenario Suite">
         <directory>scenario/main</directory>
     </suite>
-    <suite name="Cli for Tests">
+    <suite name="cli" description="Cli for Tests">
         <directory>scenario/cli</directory>
     </suite>
 </suites>
@@ -104,6 +133,10 @@ Example:
 ##### name
 Human-readable suite name.
 Used in CLI output and interactive commands.
+
+##### description
+Human-readable suite name.
+Used in CLI output.
 
 #### directory
 Directory containing scenario classes.
