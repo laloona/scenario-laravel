@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Stateforge\Scenario\Laravel\Tests\Unit;
+namespace Stateforge\Scenario\Laravel\Tests\Unit\Console\Command;
 
 use Illuminate\Console\Command;
 use Illuminate\Console\OutputStyle;
@@ -22,8 +22,10 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
 use Stateforge\Scenario\Core\Runtime\ScenarioRegistry;
-use Stateforge\Scenario\Laravel\Command\ScenarioCommand;
-use Stateforge\Scenario\Laravel\Command\ScenarioListCommand;
+use Stateforge\Scenario\Laravel\Console\Command\ScenarioCommand;
+use Stateforge\Scenario\Laravel\Console\Command\ScenarioListCommand;
+use Stateforge\Scenario\Laravel\Tests\Unit\CommandMock;
+use Stateforge\Scenario\Laravel\Tests\Unit\LaravelMock;
 use Symfony\Component\Console\Tester\CommandTester;
 use const DIRECTORY_SEPARATOR;
 use const PHP_BINARY;

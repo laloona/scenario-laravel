@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Stateforge\Scenario\Laravel\Command;
+namespace Stateforge\Scenario\Laravel\Console\Command;
 
 use Illuminate\Support\Facades\File;
 use Stateforge\Scenario\Core\Runtime\Application\Configuration\Configuration;

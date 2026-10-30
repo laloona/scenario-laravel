@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Stateforge\Scenario\Laravel\Tests\Unit\Command;
+namespace Stateforge\Scenario\Laravel\Tests\Unit\Console\Command;
 
 use Illuminate\Console\Command;
 use Illuminate\Console\OutputStyle;
@@ -31,8 +31,8 @@ use Stateforge\Scenario\Core\Runtime\Application\Configuration\DefaultConfigurat
 use Stateforge\Scenario\Core\Runtime\Application\Configuration\LoadedConfiguration;
 use Stateforge\Scenario\Core\Runtime\ScenarioDefinition;
 use Stateforge\Scenario\Core\Runtime\ScenarioRegistry;
-use Stateforge\Scenario\Laravel\Command\ScenarioCommand;
-use Stateforge\Scenario\Laravel\Command\ScenarioDebugCommand;
+use Stateforge\Scenario\Laravel\Console\Command\ScenarioCommand;
+use Stateforge\Scenario\Laravel\Console\Command\ScenarioDebugCommand;
 use Stateforge\Scenario\Laravel\Tests\Files\ValidScenario;
 use Stateforge\Scenario\Laravel\Tests\Unit\CommandMock;
 use Stateforge\Scenario\Laravel\Tests\Unit\LaravelMock;

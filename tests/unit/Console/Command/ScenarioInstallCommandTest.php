@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Stateforge\Scenario\Laravel\Tests\Unit\Command;
+namespace Stateforge\Scenario\Laravel\Tests\Unit\Console\Command;
 
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
@@ -27,8 +27,8 @@ use Stateforge\Scenario\Core\Runtime\Application;
 use Stateforge\Scenario\Core\Runtime\Application\Configuration\Configuration;
 use Stateforge\Scenario\Core\Runtime\Application\Configuration\DefaultConfiguration;
 use Stateforge\Scenario\Core\Runtime\Application\Configuration\LoadedConfiguration;
-use Stateforge\Scenario\Laravel\Command\ScenarioCommand;
-use Stateforge\Scenario\Laravel\Command\ScenarioInstallCommand;
+use Stateforge\Scenario\Laravel\Console\Command\ScenarioCommand;
+use Stateforge\Scenario\Laravel\Console\Command\ScenarioInstallCommand;
 use Stateforge\Scenario\Laravel\Tests\Unit\CommandMock;
 use Stateforge\Scenario\Laravel\Tests\Unit\LaravelMock;
 use Stateforge\Scenario\Laravel\Tests\Unit\PathHelper;
