@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.2.0] - 2026-10-30
+
+### Breaking Changes
+
+* Removed the legacy bootstrap file in favor of the new extension system.
+* Existing projects must remove their bootstrap configuration and register the corresponding extension in their XML configuration.
+
+## Added
+
+* Added suite filtering to the apply and debug commands, allowing operations to be restricted to scenarios belonging to a specific suite.
+
+### Migration
+
+Replace the previous root-level `bootstrap` attribute with:
+
+```xml
+<extensions>
+    <bootstrap class="Stateforge\Scenario\Laravel\Extension"/>
+</extensions>
+```
+
 ## [1.1.0] - 2026-04-19
 
 ### Added
