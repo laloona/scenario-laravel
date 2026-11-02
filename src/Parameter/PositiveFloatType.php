@@ -14,7 +14,7 @@ namespace Stateforge\Scenario\Laravel\Parameter;
 use Stateforge\Scenario\Core\Attribute\AsParameterType;
 
 #[AsParameterType('Validates positive floating-point numbers.')]
-final class PositiveInFloatType extends FloatTypeDefinition
+final class PositiveFloatType extends FloatTypeDefinition
 {
     protected function rules(): array
     {

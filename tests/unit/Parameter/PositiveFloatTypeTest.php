@@ -18,13 +18,13 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
-use Stateforge\Scenario\Laravel\Parameter\PositiveInFloatType;
+use Stateforge\Scenario\Laravel\Parameter\PositiveFloatType;
 use Stateforge\Scenario\Laravel\Tests\Unit\LaravelMock;
 
-#[CoversClass(PositiveInFloatType::class)]
+#[CoversClass(PositiveFloatType::class)]
 #[Group('scenario')]
 #[Small]
-final class PositiveInFloatTypeTest extends TestCase
+final class PositiveFloatTypeTest extends TestCase
 {
     use LaravelMock;
 
@@ -41,7 +41,7 @@ final class PositiveInFloatTypeTest extends TestCase
 
     public function testValidAcceptsPositiveFloat(): void
     {
-        $type = new PositiveInFloatType();
+        $type = new PositiveFloatType();
 
         self::assertTrue($type->valid(1.5));
         self::assertTrue($type->valid('1.5'));
@@ -53,7 +53,7 @@ final class PositiveInFloatTypeTest extends TestCase
 
     public function testValidRejectsZero(): void
     {
-        $type = new PositiveInFloatType();
+        $type = new PositiveFloatType();
 
         self::assertFalse($type->valid(0.0));
         self::assertFalse($type->valid('0.0'));
