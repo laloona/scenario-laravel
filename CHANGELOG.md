@@ -1,18 +1,21 @@
 # Changelog
 
+## [1.2.1] - 2026-11-03
+
+### Fixed
+- Fixed minor documentation issues.
+- Renamed class to follow naming conventions.
+
 ## [1.2.0] - 2026-10-30
 
 ### Breaking Changes
-
 * Removed the legacy bootstrap file in favor of the new extension system.
 * Existing projects must remove their bootstrap configuration and register the corresponding extension in their XML configuration.
 
 ## Added
-
 * Added suite filtering to the apply and debug commands, allowing operations to be restricted to scenarios belonging to a specific suite.
 
 ### Migration
-
 Replace the previous root-level `bootstrap` attribute with:
 
 ```xml

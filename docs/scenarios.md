@@ -93,9 +93,10 @@ use Stateforge\Scenario\Core\Runtime\Metadata\ParameterType;
 #[Parameter('email', ParameterType::String, required: true)]
 final class CreateUserScenario extends Scenario
 {
-    public function up(string $email): void
+    public function up(): void
     {
         // use parameter
+        $email = $this->parameter('email');
     }
 }
 ```
@@ -134,8 +135,10 @@ final class CreateUsersScenario implements ScenarioInterface
     /**
      * @param list<string|null> $email
      */
-    public function up(array $email): void
+    public function up(): void
     {
+        /** @var array $email */
+        $email = $this->parameter('email');
         foreach ($email as $value) {
             if ($value === null) {
                 continue;
