@@ -138,9 +138,6 @@ use Stateforge\Scenario\Laravel\Scenario;
 #[Parameter('email', ParameterType::String, repeatable: true)]
 final class CreateUsersScenario extends Scenario
 {
-    /**
-     * @param list<string|null> $email
-     */
     public function up(): void
     {
         /** @var array $email */

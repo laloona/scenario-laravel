@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.2.3] - 2026-11-06
+
+### Fixed
+- Fixed minor documentation issues.
+
 ## [1.2.2] - 2026-11-05
 
 ### Fixed
@@ -73,4 +78,4 @@ Replace the previous root-level `bootstrap` attribute with:
 
 ### Notes
 - First stable release.
-- Requires Scenario Core ^1.0.
+- Requires Scenario Ai ^1.0.
